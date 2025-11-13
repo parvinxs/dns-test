@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تستر DNS ساده</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #0f172a;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 { color: #38bdf8; }
+    button {
+      background: #38bdf8;
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.5; }
+    .result {
+      margin-top: 20px;
+      background: #1e293b;
+      padding: 10px;
+      border-radius: 10px;
+    }
+    .fastest {
+      color: #22c55e;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌐 تست سرعت DNS</h1>
+  <p>روی دکمه بزن تا سریع‌ترین DNS رو پیدا کنیم</p>
+  <button id="startBtn">شروع تست</button>
+  <div id="results" class="result"></div>
+
+  <script>
+    const dnsServers = [
+      { name: "Google", ip: "8.8.8.8" },
+      { name: "Cloudflare", ip: "1.1.1.1" },
+      { name: "OpenDNS", ip: "208.67.222.222" },
+      { name: "Quad9", ip: "9.9.9.9" },
+    ];
+
+    async function testDNS(server) {
+      const start = performance.now();
+      try {
+        await fetch(`https://${server.ip}/dns-query`, { mode: "no-cors" });
+      } catch (e) {
+        // خطای no-cors نرماله، فقط زمان رو می‌سنجیم
+      }
+      const end = performance.now();
+      return end - start;
+    }
+
+    document.getElementById("startBtn").onclick = async function () {
+      this.disabled = true;
+      document.getElementById("results").innerHTML = "در حال تست...";
+      let results = [];
+      for (const dns of dnsServers) {
+        const time = await testDNS(dns);
+        results.push({ ...dns, time });
+      }
+      results.sort((a, b) => a.time - b.time);
+
+      let html = "<h3>نتایج تست:</h3>";
+      results.forEach((r, i) => {
+        const cls = i === 0 ? "fastest" : "";
+        html += `<p class="${cls}">${r.name} (${r.ip}): ${r.time.toFixed(1)} ms</p>`;
+      });
+      document.getElementById("results").innerHTML = html;
+      this.disabled = false;
+    };
+  </script>
+</body>
+</html>
