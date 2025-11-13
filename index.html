@@ -1,83 +1,193 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>تستر DNS ساده</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #0f172a;
-      color: #fff;
-      text-align: center;
-      padding: 20px;
-    }
-    h1 { color: #38bdf8; }
-    button {
-      background: #38bdf8;
-      border: none;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:disabled { opacity: 0.5; }
-    .result {
-      margin-top: 20px;
-      background: #1e293b;
-      padding: 10px;
-      border-radius: 10px;
-    }
-    .fastest {
-      color: #22c55e;
-      font-weight: bold;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>تستر شیک DNS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+
+  body {
+    font-family: 'Vazirmatn', sans-serif;
+    background: linear-gradient(135deg,#0f172a,#1e293b);
+    color: #f1f5f9;
+    text-align: center;
+    padding: 20px;
+    min-height: 100vh;
+  }
+
+  h1 {
+    color: #38bdf8;
+    font-size: 2em;
+    margin-bottom: 20px;
+  }
+
+  button {
+    background: #38bdf8;
+    border: none;
+    color: #fff;
+    padding: 12px 25px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 25px;
+  }
+  button:hover { background: #0ea5e9; transform: scale(1.05); }
+  button:disabled { opacity:0.6; cursor:default; transform:none; }
+
+  .dns-list {
+    display:flex;
+    flex-direction: column;
+    gap:20px;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .dns-card {
+    background: rgba(255,255,255,0.05);
+    padding: 15px 20px;
+    border-radius: 12px;
+    text-align:right;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+  }
+  .dns-card:hover { transform: scale(1.02); }
+
+  .dns-card.fastest {
+    border:2px solid #22c55e;
+    box-shadow: 0 0 25px #22c55e88;
+  }
+
+  .dns-name {
+    font-weight:bold;
+    font-size:1.1em;
+    margin-bottom:8px;
+  }
+
+  .speed-bar-container {
+    background: rgba(255,255,255,0.1);
+    border-radius:10px;
+    height:16px;
+    overflow:hidden;
+    position:relative;
+  }
+
+  .speed-bar {
+    height:100%;
+    width:0%;
+    border-radius:10px;
+    transition: width 0.5s ease, background 0.5s ease;
+  }
+
+  .speed-label {
+    position:absolute;
+    right:10px;
+    top:-2px;
+    font-size:0.9em;
+    font-weight:bold;
+    color:#f1f5f9;
+    text-shadow:0 0 4px rgba(0,0,0,0.7);
+  }
+
+  .loader {
+    margin:20px auto;
+    width:24px;
+    height:24px;
+    border:3px solid #38bdf8;
+    border-top-color: transparent;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
 </head>
 <body>
-  <h1>🌐 تست سرعت DNS</h1>
-  <p>روی دکمه بزن تا سریع‌ترین DNS رو پیدا کنیم</p>
-  <button id="startBtn">شروع تست</button>
-  <div id="results" class="result"></div>
+<h1>🌐 تست سرعت DNS</h1>
+<button id="startBtn">🚀 شروع تست</button>
 
-  <script>
-    const dnsServers = [
-      { name: "Google", ip: "8.8.8.8" },
-      { name: "Cloudflare", ip: "1.1.1.1" },
-      { name: "OpenDNS", ip: "208.67.222.222" },
-      { name: "Quad9", ip: "9.9.9.9" },
-    ];
+<div id="results" class="dns-list"></div>
 
-    async function testDNS(server) {
-      const start = performance.now();
-      try {
-        await fetch(`https://${server.ip}/dns-query`, { mode: "no-cors" });
-      } catch (e) {
-        // خطای no-cors نرماله، فقط زمان رو می‌سنجیم
+<script>
+const dnsServers = [
+  {name:"Google", url:"https://www.google.com/favicon.ico"},
+  {name:"Cloudflare", url:"https://www.cloudflare.com/favicon.ico"},
+  {name:"Quad9", url:"https://www.quad9.net/favicon.ico"},
+  {name:"AdGuard", url:"https://adguard.com/favicon.ico"},
+  {name:"OpenDNS", url:"https://www.opendns.com/favicon.ico"},
+  {name:"CleanBrowsing", url:"https://cleanbrowsing.org/favicon.ico"},
+  {name:"NextDNS", url:"https://nextdns.io/favicon.ico"},
+  {name:"Comodo Secure DNS", url:"https://www.comodo.com/favicon.ico"}
+];
+
+function getColor(percent){
+  if(percent>90) return "#22c55e"; // سبز برای سریع‌ترین
+  else if(percent>70) return "#3b82f6"; // آبی روشن
+  else if(percent>50) return "#facc15"; // زرد
+  else return "#f87171"; // قرمز کند
+}
+
+async function testDNS(server){
+  const start=performance.now();
+  try{
+    await fetch(server.url,{mode:'no-cors'});
+  }catch(e){}
+  return performance.now()-start;
+}
+
+document.getElementById("startBtn").onclick=async function(){
+  const btn=this;
+  const resultsDiv=document.getElementById("results");
+  btn.disabled=true;
+  resultsDiv.innerHTML='<div class="loader"></div>';
+
+  const cards=dnsServers.map(dns=>{
+    const card=document.createElement('div');
+    card.className='dns-card';
+    card.innerHTML=`
+      <div class="dns-name">${dns.name}</div>
+      <div class="speed-bar-container">
+        <div class="speed-bar"></div>
+        <div class="speed-label">...</div>
+      </div>`;
+    resultsDiv.appendChild(card);
+    return {dns, card};
+  });
+
+  for(const c of cards){
+    const time=await testDNS(c.dns);
+    c.time=time;
+  }
+
+  cards.sort((a,b)=>a.time-b.time);
+  const fastestTime=cards[0].time;
+  cards[0].card.classList.add('fastest');
+
+  for(const c of cards){
+    const bar=c.card.querySelector('.speed-bar');
+    const label=c.card.querySelector('.speed-label');
+    const percent=Math.min(100,(fastestTime/c.time)*100);
+    bar.style.width='0%';
+    bar.style.background=getColor(percent);
+
+    let width=0;
+    const interval=setInterval(()=>{
+      if(width>=percent){
+        clearInterval(interval);
+        label.textContent=`${c.time.toFixed(1)} ms`;
+      }else{
+        width+=2;
+        bar.style.width=width+'%';
+        label.textContent=`${(c.time*width/percent).toFixed(1)} ms`;
       }
-      const end = performance.now();
-      return end - start;
-    }
+    },15);
+  }
 
-    document.getElementById("startBtn").onclick = async function () {
-      this.disabled = true;
-      document.getElementById("results").innerHTML = "در حال تست...";
-      let results = [];
-      for (const dns of dnsServers) {
-        const time = await testDNS(dns);
-        results.push({ ...dns, time });
-      }
-      results.sort((a, b) => a.time - b.time);
-
-      let html = "<h3>نتایج تست:</h3>";
-      results.forEach((r, i) => {
-        const cls = i === 0 ? "fastest" : "";
-        html += `<p class="${cls}">${r.name} (${r.ip}): ${r.time.toFixed(1)} ms</p>`;
-      });
-      document.getElementById("results").innerHTML = html;
-      this.disabled = false;
-    };
-  </script>
+  btn.disabled=false;
+};
+</script>
 </body>
 </html>
