@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live DNS Tester</title>
+<title>Live DNS Tester - پیشرفته</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
 
@@ -14,113 +14,116 @@ body {
   text-align: center;
   padding: 20px;
   min-height: 100vh;
-  transition: background 0.5s ease;
 }
 
-h1 {
-  color: #38bdf8; 
-  font-size: 2em; 
-  margin-bottom: 10px; 
-  display: flex; 
-  justify-content: center; 
-  align-items: center; 
-  gap: 10px;
-}
+h1 { color: #38bdf8; font-size: 2em; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+.best-dns { font-size: 1.4em; color: #22c55e; font-weight: bold; margin-bottom: 20px; }
 
-.best-dns {
-  font-size: 1.3em;
-  color: #22c55e;
+#startBtn {
+  background: linear-gradient(135deg, #22c55e, #3b82f6);
+  border: none;
+  color: #fff;
+  padding: 20px 60px;
+  font-size: 1.6rem;
   font-weight: bold;
-  margin-bottom: 20px;
-  transition: all 0.5s ease;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4), 0 0 50px rgba(34,197,94,0.4);
+  margin-bottom: 30px;
 }
 
-button {
-  background: #38bdf8; border: none; color: #fff;
-  padding: 12px 25px; border-radius: 12px;
-  font-size: 1rem; font-weight: bold;
-  cursor: pointer; transition: all 0.3s ease;
-  margin-bottom: 20px;
+#startBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5), 0 0 70px rgba(34,197,94,0.6);
 }
-button:hover { background: #0ea5e9; transform: scale(1.05);}
-button:disabled { opacity:0.6; cursor:default; transform:none;}
 
-.dns-list { display:flex; flex-direction: column; gap:20px; max-width:600px; margin:0 auto;}
-.dns-card {
-  background: rgba(255,255,255,0.05); padding:15px 20px;
-  border-radius:12px; text-align:right; box-shadow:0 4px 15px rgba(0,0,0,0.3);
-  position:relative; overflow:hidden; transition: transform 0.3s ease, background 0.3s ease;
-  display:flex; flex-direction: column; gap:6px;
+#startBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
 }
-.dns-card:hover { transform: scale(1.02); background: rgba(255,255,255,0.1);}
-.dns-card.fastest { border:2px solid #22c55e; box-shadow:0 0 25px #22c55e88;}
 
-.dns-name { font-weight:bold; font-size:1.1em; display:flex; align-items:center; gap:8px;}
-.dns-name span { font-size:0.9em; color:#94a3b8;}
+table {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 40px auto;
+  border-collapse: collapse;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: center;
+}
+
+th { background: rgba(0,0,0,0.3); font-weight: bold; font-size: 1rem; }
+td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
 
 .speed-bar-container {
-  background: rgba(255,255,255,0.1); border-radius:10px; height:16px;
-  overflow:hidden; position:relative;
+  position: relative;
+  height: 18px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.1);
+  overflow: hidden;
 }
+
 .speed-bar {
-  height:100%; width:0%; border-radius:10px; transition: width 0.3s ease, background 0.3s ease;
-  background: linear-gradient(90deg, #22c55e, #3b82f6, #facc15, #f87171);
-  background-size: 400% 100%;
-  animation: gradientMove 2s linear infinite;
-}
-.speed-label {
-  position:absolute; right:10px; top:-2px; font-size:0.9em; font-weight:bold;
-  color:#f1f5f9; text-shadow:0 0 4px rgba(0,0,0,0.7);
+  height: 100%;
+  width: 0%;
+  border-radius: 10px;
+  transition: width 1s ease, background 1s ease;
 }
 
-.loader { margin:20px auto; width:24px; height:24px; border:3px solid #38bdf8; border-top-color: transparent; border-radius:50%; animation:spin 1s linear infinite;}
+.copy-btn {
+  background: #3b82f6;
+  border: none;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-top: 2px;
+  transition: 0.3s;
+}
+
+.copy-btn:hover { background: #22c55e; transform: scale(1.05); }
+
+.fastest td { border: 2px solid #22c55e; box-shadow:0 0 15px #22c55e88; }
+
+.loader { margin:20px auto; width:24px; height:24px; border:3px solid #38bdf8; border-top-color: transparent; border-radius:50%; animation:spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-@keyframes gradientMove { 0%{background-position:0%}100%{background-position:400%} }
 
-.fsociety-logo {
-  width: 36px;
-  height: 36px;
-}
-
-.creator {
-  margin-top:40px;
-  font-size:0.95em;
-  color:#94a3b8;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  flex-wrap: wrap;
-}
-
-.creator a {
-  color:#38bdf8;
-  text-decoration:none;
-  font-weight:bold;
-  text-shadow: 0 0 5px #38bdf8, 0 0 10px #38bdf8;
-  transition: all 0.3s ease;
-}
-.creator a:hover {
-  color: #22c55e;
-  text-shadow: 0 0 8px #22c55e, 0 0 15px #22c55e;
-  text-decoration: underline;
-}
+.creator { margin-top:20px; font-size:0.95em; color:#94a3b8; display: flex; justify-content: center; align-items: center; gap: 5px; flex-wrap: wrap; }
+.creator a { color:#38bdf8; text-decoration:none; font-weight:bold; text-shadow: 0 0 5px #38bdf8, 0 0 10px #38bdf8; transition: all 0.3s ease; }
+.creator a:hover { color: #22c55e; text-shadow: 0 0 8px #22c55e, 0 0 15px #22c55e; text-decoration: underline; }
 </style>
 </head>
 <body>
-<h1>
-  Live DNS Tester
-  <svg class="fsociety-logo" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="256" cy="256" r="256" fill="#fff"/>
-    <path d="M256 0C114.62 0 0 114.62 0 256s114.62 256 256 256 256-114.62 256-256S397.38 0 256 0zm0 480C132.288 480 32 379.712 32 256S132.288 32 256 32s224 100.288 224 224-100.288 224-224 224z" fill="#000"/>
-    <circle cx="256" cy="256" r="80" fill="#000"/>
-  </svg>
-</h1>
-<div id="bestDNS" class="best-dns"></div>
-<button id="startBtn">🚀 Start Test</button>
-<div id="results" class="dns-list"></div>
 
-<!-- بخش سازنده با افکت Neon -->
+<h1>Live DNS Tester</h1>
+<div id="bestDNS" class="best-dns"></div>
+<button id="startBtn">🚀 شروع تست DNS</button>
+
+<div id="results">
+  <table id="dnsTable">
+    <thead>
+      <tr>
+        <th>اولویت</th>
+        <th>نام DNS</th>
+        <th>IP ها</th>
+        <th>وضعیت</th>
+        <th>سرعت</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
 <div class="creator">
   ساخته شده توسط <strong>XSParvin</strong> | 
   <a href="https://t.me/xsfsociety" target="_blank" rel="noopener noreferrer">کانال تلگرام</a>
@@ -128,17 +131,13 @@ button:disabled { opacity:0.6; cursor:default; transform:none;}
 
 <script>
 const dnsServers = [
-  {name:"Google", url:"https://www.google.com/favicon.ico"},
-  {name:"Cloudflare", url:"https://www.cloudflare.com/favicon.ico"},
-  {name:"Quad9", url:"https://www.quad9.net/favicon.ico"},
-  {name:"AdGuard", url:"https://adguard.com/favicon.ico"},
-  {name:"OpenDNS", url:"https://www.opendns.com/favicon.ico"},
-  {name:"CleanBrowsing", url:"https://cleanbrowsing.org/favicon.ico"},
-  {name:"NextDNS", url:"https://nextdns.io/favicon.ico"},
-  {name:"Comodo Secure DNS", url:"https://www.comodo.com/favicon.ico"},
-  {name:"Alternate DNS", url:"https://alternate-dns.com/favicon.ico"},
-  {name:"Yandex", url:"https://yandex.com/favicon.ico"},
-  {name:"DNS.Watch", url:"https://dns.watch/favicon.ico"}
+  {name:"Google", url:"https://www.google.com/favicon.ico", ips:["8.8.8.8","8.8.4.4"]},
+  {name:"Cloudflare", url:"https://www.cloudflare.com/favicon.ico", ips:["1.1.1.1","1.0.0.1"]},
+  {name:"Quad9", url:"https://www.quad9.net/favicon.ico", ips:["9.9.9.9","149.112.112.112"]},
+  {name:"AdGuard", url:"https://adguard.com/favicon.ico", ips:["94.140.14.14","94.140.15.15"]},
+  {name:"OpenDNS", url:"https://www.opendns.com/favicon.ico", ips:["208.67.222.222","208.67.220.220"]},
+  {name:"ایرانسل", url:"http://185.51.200.2/favicon.ico", ips:["185.51.200.2","185.51.200.3"]},
+  {name:"شاتل", url:"http://178.22.122.100/favicon.ico", ips:["178.22.122.100","185.55.225.11"]}
 ];
 
 function getColor(speed){
@@ -163,54 +162,53 @@ async function testDNS(url){
   return time===Infinity ? 1500 : performance.now()-start;
 }
 
+function copyToClipboard(text){
+  navigator.clipboard.writeText(text).then(()=>alert(`آدرس DNS کپی شد: ${text}`));
+}
+
 document.getElementById("startBtn").onclick = async function(){
   const btn = this;
-  const resultsDiv = document.getElementById("results");
+  const tbody = document.querySelector('#dnsTable tbody');
   const bestDiv = document.getElementById("bestDNS");
   btn.disabled = true;
   bestDiv.textContent = '';
-  resultsDiv.innerHTML = '<div class="loader"></div>';
+  tbody.innerHTML = '<tr><td colspan="5"><div class="loader"></div></td></tr>';
 
-  resultsDiv.innerHTML = '';
-  const cards = dnsServers.map(dns => {
-    const card = document.createElement('div');
-    card.className = 'dns-card';
-    card.innerHTML = `
-      <div class="dns-name">${dns.name} <span>Testing...</span></div>
-      <div class="speed-bar-container">
-        <div class="speed-bar"></div>
-        <div class="speed-label">...</div>
-      </div>`;
-    resultsDiv.appendChild(card);
-    return {dns, card, time:Infinity};
+  tbody.innerHTML = '';
+  let rows = dnsServers.map(dns => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>-</td>
+      <td>${dns.name}</td>
+      <td>${dns.ips.map(ip => `<div>${ip} <button class="copy-btn" onclick="copyToClipboard('${ip}')">کپی</button></div>`).join('')}</td>
+      <td><span>Testing...</span></td>
+      <td>
+        <div class="speed-bar-container">
+          <div class="speed-bar"></div>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+    return {dns, tr, time:Infinity, bar: tr.querySelector('.speed-bar'), status: tr.querySelector('span'), priorityCell: tr.children[0]};
   });
 
-  let fastestTime = Infinity;
-  let fastestIndex = 0;
+  for(const row of rows){
+    let time = await testDNS(row.dns.url);
+    row.time = time;
+    row.bar.style.width = '100%';
+    row.bar.style.background = getColor(time);
+    row.status.textContent = `${Math.round(time)} ms ✔️`;
+  }
 
-  await Promise.all(dnsServers.map(async (dns, index)=>{
-    const time = await testDNS(dns.url);
-    cards[index].time = time;
-    if(time<fastestTime){
-      fastestTime = time;
-      fastestIndex = index;
-    }
+  // مرتب سازی پینگ از پایین به بالا
+  rows.sort((a,b)=>a.time-b.time);
+  rows.forEach((row, index)=>{
+    row.priorityCell.textContent = index+1;
+    tbody.appendChild(row.tr);
+  });
 
-    const bar = cards[index].card.querySelector('.speed-bar');
-    const label = cards[index].card.querySelector('.speed-label');
-    const percent = Math.min(100,(time/fastestTime)*100);
-    bar.style.width = `${100-percent}%`;
-    bar.style.background = getColor(time);
-    label.textContent = `${Math.round(time)} ms`;
-
-    cards.forEach(c=>c.card.classList.remove('fastest'));
-    cards[fastestIndex].card.classList.add('fastest');
-
-    const status = cards[index].card.querySelector('.dns-name span');
-    status.textContent = '✔️ Done';
-  }));
-
-  bestDiv.textContent = `🏆 Best DNS: ${cards[fastestIndex].dns.name} (${Math.round(fastestTime)} ms)`;
+  rows[0].tr.classList.add('fastest');
+  bestDiv.textContent = `🏆 بهترین DNS: ${rows[0].dns.name} (${Math.round(rows[0].time)} ms)`;
   btn.disabled = false;
 };
 </script>
