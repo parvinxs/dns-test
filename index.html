@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live DNS Tester - Fast & Accurate (Final Tolerant Version)</title>
+<title>Live DNS Tester - Fast & Accurate (Optimized for HTTP)</title>
 <style>
 /* Import a modern, clean English font. Roboto is a good, universal choice. */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
@@ -43,6 +43,23 @@ body {
 
 h1 { color: #38bdf8; font-size: 2.2em; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 10px; }
 .best-dns { font-size: 1.5em; color: #22c55e; font-weight: bold; margin-bottom: 20px; }
+
+/* New Warning Box Style */
+.warning-box {
+    background-color: #f8717133; /* Light red/orange background */
+    border: 2px solid #f87171;
+    color: #f1f5f9;
+    padding: 15px;
+    margin: 10px auto 25px;
+    max-width: 600px;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: left;
+}
+.warning-box p { margin: 5px 0; }
+.warning-box strong { color: #facc15; }
+
 
 #startBtn {
   background: linear-gradient(135deg, #22c55e, #3b82f6);
@@ -111,7 +128,13 @@ td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
   <a href="https://t.me/xsfsociety" target="_blank" rel="noopener noreferrer">Telegram Channel</a>
 </div>
 
-<h1>⚡️ Live DNS Tester (Tolerant)</h1>
+<h1>⚡️ Live DNS Tester (Optimized for HTTP)</h1>
+
+<div class="warning-box">
+    <p>⚠️ **نکته بسیار مهم برای تست بدون فیلترشکن:**</p>
+    <p>این ابزار صرفاً **سرعت ارتباط مرورگر شما با IP** را می‌سنجد. برای اینکه واقعاً سرعت DNS را تست کنید، باید **حتماً** قبل از زدن دکمه، DNSهای مورد نظر را در **تنظیمات شبکه کامپیوتر یا مودم خود** تنظیم کنید تا مرورگر از آن استفاده کند. در غیر این صورت، نتیجه تست صرفاً سرعت پینگ است.</p>
+</div>
+
 <div id="bestDNS" class="best-dns"></div>
 <button id="startBtn">🚀 Start DNS Test</button>
 
@@ -133,9 +156,10 @@ td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
 <script>
 // =======================================================
 // تنظیمات تست دقت و دسترسی در شبکه‌های محدود
+// ⚠️ همه URLها برای افزایش احتمال موفقیت در شبکه‌های محدود، به HTTP تغییر داده شدند.
 // =======================================================
 const TEST_COUNT = 3; // تعداد دفعات تکرار تست برای دقت بالاتر (میانگین گرفته می‌شود)
-const MAX_TIMEOUT = 3000; // تایم‌اوت را به ۳ ثانیه افزایش می‌دهیم
+const MAX_TIMEOUT = 3000; // تایم‌اوت ۳ ثانیه
 
 const dnsServers = [
   // 🟢 DNSهای جایگزین و داخلی با احتمال کارکرد بالا (بدون فیلتر)
@@ -143,14 +167,14 @@ const dnsServers = [
   {name:"403.online", urls:["http://10.202.10.202/favicon.ico", "http://10.202.10.102/favicon.ico"], ips:["10.202.10.202","10.202.10.102"]},
   {name:"Electro Team", urls:["http://78.157.42.100/favicon.ico", "http://78.157.42.101/favicon.ico"], ips:["78.157.42.100","78.157.42.101"]},
   
-  // 🟡 DNSهای عمومی که گاهی باز هستند
+  // 🟡 DNSهای عمومی (تغییر به HTTP برای دور زدن فیلترهای HTTPS/IP)
   {name:"Level 3", urls:["http://4.2.2.4/favicon.ico", "http://4.2.2.3/favicon.ico"], ips:["4.2.2.4","4.2.2.3"]},
-  {name:"AdGuard", urls:["https://94.140.14.14/favicon.ico", "https://94.140.15.15/favicon.ico"], ips:["94.140.14.14","94.140.15.15"]},
+  {name:"AdGuard", urls:["http://94.140.14.14/favicon.ico", "http://94.140.15.15/favicon.ico"], ips:["94.140.14.14","94.140.15.15"]},
 
-  // 🔴 DNSهای فیلترشده (که برای تست بین‌المللی با VPN لازم هستند)
-  {name:"Google (VPN Required)", urls:["https://8.8.8.8/favicon.ico", "https://8.8.4.4/favicon.ico"], ips:["8.8.8.8","8.8.4.4"]},
-  {name:"Cloudflare (VPN Required)", urls:["https://1.1.1.1/favicon.ico", "https://1.0.0.1/favicon.ico"], ips:["1.1.1.1","1.0.0.1"]},
-  {name:"Quad9 (VPN Required)", urls:["https://9.9.9.9/favicon.ico", "https://149.112.112.112/favicon.ico"], ips:["9.9.9.9","149.112.112.112"]},
+  // 🔴 DNSهای فیلترشده (تغییر به HTTP - ممکن است همچنان فیلتر باشند)
+  {name:"Google", urls:["http://8.8.8.8/favicon.ico", "http://8.8.4.4/favicon.ico"], ips:["8.8.8.8","8.8.4.4"]},
+  {name:"Cloudflare", urls:["http://1.1.1.1/favicon.ico", "http://1.0.0.1/favicon.ico"], ips:["1.1.1.1","1.0.0.1"]},
+  {name:"Quad9", urls:["http://9.9.9.9/favicon.ico", "http://149.112.112.112/favicon.ico"], ips:["9.9.9.9","149.112.112.112"]},
 ];
 // =======================================================
 
@@ -332,5 +356,6 @@ document.getElementById("startBtn").onclick = async function(){
 </script>
 </body>
 </html>
+
 
 
