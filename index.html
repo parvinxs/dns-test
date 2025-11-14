@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Live DNS Tester - Fast & Accurate</title>
 <style>
-/* Import a modern, clean English font. Roboto is a good, universal choice. */
+/* ... (CSS Styles remain the same) ... */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 body {
@@ -111,7 +111,7 @@ td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
   <a href="https://t.me/xsfsociety" target="_blank" rel="noopener noreferrer">Telegram Channel</a>
 </div>
 
-<h1>⚡️ Live DNS Tester</h1>
+<h1>⚡️ Live DNS Tester (Tolerant)</h1>
 <div id="bestDNS" class="best-dns"></div>
 <button id="startBtn">🚀 Start DNS Test</button>
 
@@ -131,25 +131,28 @@ td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
 </div>
 
 <script>
-// ===============================================
-// ✅ FIX 1: جایگزینی/اضافه کردن DNSهای محلی و کمتر فیلتر شده
-// ===============================================
+// =======================================================
+// تنظیمات تست دقت و دسترسی در شبکه‌های محدود
+// =======================================================
+const TEST_COUNT = 3; // تعداد دفعات تکرار تست برای دقت بالاتر (میانگین گرفته می‌شود)
+const MAX_TIMEOUT = 2500; // زمان انقضای هر تست (2.5 ثانیه)
+
 const dnsServers = [
-  // DNSهای بین‌المللی عمومی (ممکن است فیلتر باشند)
+  // DNSهای بین‌المللی عمومی (برای تست با VPN یا دسترسی بین‌المللی)
   {name:"Google", urls:["https://8.8.8.8/favicon.ico", "https://8.8.4.4/favicon.ico"], ips:["8.8.8.8","8.8.4.4"]},
   {name:"Cloudflare", urls:["https://1.1.1.1/favicon.ico", "https://1.0.0.1/favicon.ico"], ips:["1.1.1.1","1.0.0.1"]},
+  {name:"Quad9", urls:["https://9.9.9.9/favicon.ico", "https://149.112.112.112/favicon.ico"], ips:["9.9.9.9","149.112.112.112"]},
   
-  // 🆕 DNSهای جایگزین و ایرانی (احتمال کارکرد بالاتر بدون فیلترشکن)
+  // 🟢 DNSهای جایگزین و داخلی (برای کارکرد بدون فیلترشکن)
   {name:"Shecan", urls:["http://178.22.122.100/favicon.ico", "http://185.51.200.2/favicon.ico"], ips:["178.22.122.100","185.51.200.2"]},
   {name:"403.online", urls:["http://10.202.10.202/favicon.ico", "http://10.202.10.102/favicon.ico"], ips:["10.202.10.202","10.202.10.102"]},
   {name:"Electro Team", urls:["http://78.157.42.100/favicon.ico", "http://78.157.42.101/favicon.ico"], ips:["78.157.42.100","78.157.42.101"]},
   
   // سایر DNSهای معتبر
-  {name:"Quad9", urls:["https://9.9.9.9/favicon.ico", "https://149.112.112.112/favicon.ico"], ips:["9.9.9.9","149.112.112.112"]},
   {name:"AdGuard", urls:["https://94.140.14.14/favicon.ico", "https://94.140.15.15/favicon.ico"], ips:["94.140.14.14","94.140.15.15"]},
-  {name:"OpenDNS", urls:["https://208.67.222.222/favicon.ico", "https://208.67.220.220/favicon.ico"], ips:["208.67.222.222","208.67.220.220"]}
+  {name:"OpenDNS", urls:["https://208.67.222.222/favicon.ico", "https://208.67.220.220/favicon.ico"], ips:["208.67.222.222","208.67.220.220"]},
 ];
-// ===============================================
+// =======================================================
 
 /**
  * Returns a color based on the speed (ms) for the progress bar.
@@ -169,18 +172,12 @@ function getColor(speed){
  * @param {number} timeout - The maximum time to wait in milliseconds.
  * @returns {Promise<number>} The response time in ms, or the timeout value if it fails/times out.
  */
-// ===============================================
-// ✅ FIX 2: افزایش زمان Timeout برای جلوگیری از شکست زودهنگام
-// ===============================================
-const MAX_TIMEOUT = 2500; // تعریف یک متغیر ثابت برای تایم‌اوت جدید
-
 function fetchWithTimeout(url, timeout = MAX_TIMEOUT){
   return new Promise(resolve => {
     const start = performance.now();
     const timer = setTimeout(()=>resolve(timeout), timeout); 
     
     // Fetching directly via IP simulates a DNS query latency test more accurately 
-    // by eliminating the need for *local* DNS resolution first.
     fetch(url, {mode:'no-cors', cache: 'no-store'}) 
       .then(()=>{ 
         clearTimeout(timer); 
@@ -192,24 +189,38 @@ function fetchWithTimeout(url, timeout = MAX_TIMEOUT){
       });
   });
 }
-// ===============================================
-
 
 /**
- * Executes a single DNS speed test by racing all available IP/URL combinations.
- * This ensures the absolute fastest response time for the provider is recorded.
+ * Executes a single DNS speed test by racing all available IP/URL combinations multiple times.
+ * This ensures the absolute fastest and most stable response time for the provider is recorded.
  * @param {Array<string>} urls - The list of test URLs for the DNS server provider.
- * @returns {Promise<number>} The fastest speed result in ms (capped at MAX_TIMEOUT ms).
+ * @returns {Promise<number>} The average fastest speed result in ms (capped at MAX_TIMEOUT ms).
  */
 async function testDNSProvider(urls){
-  const maxTime = MAX_TIMEOUT; // استفاده از متغیر ثابت
-  // Create an array of Promises for all URLs, then race them.
-  const testPromises = urls.map(url => fetchWithTimeout(url, maxTime));
+  const results = [];
   
-  // Return the time of the fastest successful fetch, or maxTime if all fail/timeout.
-  const fastestTime = await Promise.race(testPromises);
+  // تکرار تست‌ها برای افزایش دقت
+  for(let i=0; i < TEST_COUNT; i++){
+      // Race all IPs for the provider on each run
+      const testPromises = urls.map(url => fetchWithTimeout(url, MAX_TIMEOUT));
+      const fastestTime = await Promise.race(testPromises);
+      
+      // اگر تست با موفقیت انجام شود، زمان را ثبت کنید.
+      if(fastestTime < MAX_TIMEOUT){
+          results.push(fastestTime);
+      }
+      // یک تاخیر کوچک برای جلوگیری از بارگذاری بیش از حد شبکه
+      await new Promise(r => setTimeout(r, 10)); 
+  }
   
-  return fastestTime > maxTime ? maxTime : fastestTime;
+  if (results.length > 0) {
+      // میانگین گیری از نتایج موفق برای افزایش دقت
+      const sum = results.reduce((a, b) => a + b, 0);
+      return sum / results.length;
+  }
+  
+  // اگر هیچ تستی موفق نبود، MAX_TIMEOUT را برگردان
+  return MAX_TIMEOUT;
 }
 
 /**
@@ -235,7 +246,7 @@ document.getElementById("startBtn").onclick = async function(){
   bestDiv.textContent = '';
   
   // Display initial loading state
-  tbody.innerHTML = '<tr><td colspan="5" data-label="Status"><div class="loader"></div><span>Testing in progress...</span></td></tr>';
+  tbody.innerHTML = `<tr><td colspan="5" data-label="Status"><div class="loader"></div><span>Starting ${TEST_COUNT} concurrent tests per DNS...</span></td></tr>`;
 
   tbody.innerHTML = '';
   
@@ -248,7 +259,7 @@ document.getElementById("startBtn").onclick = async function(){
       <td data-label="IPs">${dns.ips.map(ip => 
         `<div>${ip} <button class="copy-btn" onclick="copyToClipboard('${ip}')">Copy</button></div>`
       ).join('')}</td>
-      <td data-label="Status"><span>Testing...</span></td>
+      <td data-label="Status"><span>Testing (0/${TEST_COUNT})...</span></td>
       <td data-label="Speed">
         <div class="speed-bar-container">
           <div class="speed-bar"></div>
@@ -266,63 +277,60 @@ document.getElementById("startBtn").onclick = async function(){
     };
   });
 
-  // 2. Start the fake loading animations
-  rows.forEach(row => {
-    let width = 0;
-    const interval = setInterval(()=>{
-      width += Math.random()*5;
-      if(width>95) width=95; 
-      row.bar.style.width = width + '%';
-    }, 75); 
-    row.interval = interval;
-  });
-
-  // 3. Run the actual tests concurrently (using Promise.all)
+  // 2. Run the actual tests concurrently (using Promise.all)
   const testPromises = rows.map(async (row) => {
     const time = await testDNSProvider(row.dns.urls); 
     row.time = time;
     return row; 
   });
   
-  const results = await Promise.all(testPromises);
-
-  // 4. Update rows with final results
-  const MAX_TIMEOUT = 2500; // استفاده از متغیر ثابت برای چک کردن شکست
-  results.forEach(row => {
-    clearInterval(row.interval);
-    
-    // Set final bar state
-    const displayTime = Math.round(row.time);
-    row.bar.style.width = '100%';
-    row.bar.style.background = getColor(displayTime);
-    row.status.textContent = displayTime >= MAX_TIMEOUT ? '❌ Failed' : '✔️ OK';
-    // Ensure display is exact for failed/timeout cases
-    row.speedText.textContent = displayTime >= MAX_TIMEOUT ? ` >${displayTime} ms (Timeout)` : `${displayTime} ms`;
-  });
-
-  // 5. Sort results and update priority
-  results.sort((a,b)=>a.time-b.time);
-  
-  // Re-render rows in sorted order and set priority
-  tbody.innerHTML = ''; 
-  results.forEach((row, index)=>{
-    row.priorityCell.textContent = index+1;
-    tbody.appendChild(row.tr);
-  });
-
-  // 6. Highlight the fastest result
-  const fastestRow = results.find(row => row.time < MAX_TIMEOUT); 
-  if (fastestRow) {
-    fastestRow.tr.classList.add('fastest');
-    const bestTime = Math.round(fastestRow.time);
-    bestDiv.textContent = `🏆 Fastest DNS: ${fastestRow.dns.name} (${bestTime} ms)`;
-  } else {
-    bestDiv.textContent = "😔 All tests failed or timed out.";
+  // اجرای موازی تست‌ها و به‌روزرسانی وضعیت در حین اجرا برای تجربه بهتر کاربر
+  let completedTests = 0;
+  for (let i = 0; i < dnsServers.length; i++) {
+    // برای هر DNS، تست را در پس‌زمینه اجرا می‌کنیم
+    testPromises[i].then(row => {
+        completedTests++;
+        
+        // به‌روزرسانی نوار و وضعیت بلافاصله پس از تکمیل تست آن DNS
+        const displayTime = Math.round(row.time);
+        row.bar.style.width = '100%';
+        row.bar.style.background = getColor(displayTime);
+        row.status.textContent = displayTime >= MAX_TIMEOUT ? '❌ Failed' : '✔️ OK';
+        row.speedText.textContent = displayTime >= MAX_TIMEOUT ? ` >${MAX_TIMEOUT} ms (Failed)` : `${displayTime} ms (Avg of ${TEST_COUNT})`;
+        
+        // اگر همه تست‌ها تکمیل شدند، مرتب‌سازی و نمایش نتایج نهایی
+        if (completedTests === dnsServers.length) {
+            updateFinalResults(rows, bestDiv, tbody);
+            btn.disabled = false;
+        }
+    });
   }
   
-  btn.disabled = false;
+  // تابع کمکی برای مرتب سازی نهایی و نمایش
+  function updateFinalResults(allRows, bestDiv, tbody) {
+      allRows.sort((a,b)=>a.time-b.time);
+      
+      // Re-render rows in sorted order and set priority
+      tbody.innerHTML = ''; 
+      allRows.forEach((row, index)=>{
+          row.priorityCell.textContent = index+1;
+          tbody.appendChild(row.tr);
+      });
+
+      // Highlight the fastest result
+      const fastestRow = allRows.find(row => row.time < MAX_TIMEOUT); 
+      if (fastestRow) {
+          fastestRow.tr.classList.add('fastest');
+          const bestTime = Math.round(fastestRow.time);
+          bestDiv.textContent = `🏆 Fastest DNS: ${fastestRow.dns.name} (${bestTime} ms)`;
+      } else {
+          bestDiv.textContent = "😔 All tests failed or timed out.";
+      }
+  }
+
 };
 </script>
 </body>
 </html>
+
 
