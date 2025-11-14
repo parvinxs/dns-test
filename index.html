@@ -5,11 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Live DNS Tester - Fast & Accurate</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+/* Import a modern, clean English font. Roboto is a good, universal choice. */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 body {
-  font-family: 'Vazirmatn', sans-serif;
-  background: linear-gradient(135deg,#0f172a,#1e293b);
+  font-family: 'Roboto', sans-serif;
+  /* Dark theme background */
+  background: linear-gradient(135deg, #0f172a, #1e293b); 
   color: #f1f5f9;
   text-align: center;
   padding: 20px;
@@ -27,9 +29,9 @@ body {
   flex-wrap: wrap;
 }
 .creator a {
-  color:#38bdf8;
-  text-decoration:none;
-  font-weight:bold;
+  color: #38bdf8;
+  text-decoration: none;
+  font-weight: bold;
   text-shadow: 0 0 5px #38bdf8, 0 0 10px #38bdf8;
   transition: all 0.3s ease;
 }
@@ -39,8 +41,8 @@ body {
   text-decoration: underline;
 }
 
-h1 { color: #38bdf8; font-size: 2em; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 10px; }
-.best-dns { font-size: 1.4em; color: #22c55e; font-weight: bold; margin-bottom: 20px; }
+h1 { color: #38bdf8; font-size: 2.2em; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+.best-dns { font-size: 1.5em; color: #22c55e; font-weight: bold; margin-bottom: 20px; }
 
 #startBtn {
   background: linear-gradient(135deg, #22c55e, #3b82f6);
@@ -60,7 +62,7 @@ h1 { color: #38bdf8; font-size: 2em; margin-bottom: 20px; display: flex; justify
 
 table { width: 100%; max-width: 900px; margin: 0 auto 40px; border-collapse: collapse; background: rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 th, td { padding: 12px 15px; text-align: center; }
-th { background: rgba(0,0,0,0.3); font-weight: bold; font-size: 1rem; }
+th { background: rgba(0,0,0,0.3); font-weight: bold; font-size: 1rem; color: #38bdf8; } /* Highlighted header */
 td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
 
 .speed-bar-container { position: relative; height: 18px; border-radius: 10px; background: rgba(255,255,255,0.1); overflow: hidden; margin-top: 5px; }
@@ -69,19 +71,35 @@ td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
 .copy-btn { background: #3b82f6; border: none; color: #fff; padding: 4px 12px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; margin-top: 2px; transition: 0.3s; }
 .copy-btn:hover { background: #22c55e; transform: scale(1.05); }
 
-.fastest td { border: 2px solid #22c55e; box-shadow:0 0 15px #22c55e88; }
+.fastest td { border: 2px solid #22c55e; box-shadow: 0 0 15px #22c55e88; font-weight: bold; color: #fff; } /* Fastest row highlight */
 
-.loader { margin:20px auto; width:24px; height:24px; border:3px solid #38bdf8; border-top-color: transparent; border-radius:50%; animation:spin 1s linear infinite; }
+.loader { margin: 20px auto; width: 30px; height: 30px; border: 4px solid rgba(56, 189, 248, 0.5); border-top-color: #38bdf8; border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Mobile View Optimization */
 @media screen and (max-width: 768px) {
   #startBtn { padding: 18px 40px; font-size: 1.3rem; }
   table, thead, tbody, th, td, tr { display: block; }
   thead tr { display: none; }
   tr { margin-bottom: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; }
-  td { display: flex; justify-content: space-between; padding: 10px; text-align: right; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  td { 
+    display: flex; 
+    justify-content: space-between; 
+    padding: 10px; 
+    text-align: right; 
+    font-size: 0.9rem; 
+    border-bottom: 1px solid rgba(255,255,255,0.1); 
+    align-items: center; /* Better vertical alignment */
+  }
   td:last-child { border-bottom: none; }
-  td::before { content: attr(data-label); font-weight: bold; color: #94a3b8; flex: 1; text-align: left; }
+  td::before { 
+    content: attr(data-label); 
+    font-weight: bold; 
+    color: #94a3b8; 
+    flex: 1; 
+    text-align: left; 
+    min-width: 80px; /* Ensure space for label */
+  }
   .copy-btn { padding: 3px 8px; font-size: 0.8rem; }
 }
 </style>
@@ -93,7 +111,7 @@ td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
   <a href="https://t.me/xsfsociety" target="_blank" rel="noopener noreferrer">Telegram Channel</a>
 </div>
 
-<h1>Live DNS Tester</h1>
+<h1>⚡️ Live DNS Tester</h1>
 <div id="bestDNS" class="best-dns"></div>
 <button id="startBtn">🚀 Start DNS Test</button>
 
@@ -105,7 +123,7 @@ td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
         <th>DNS Name</th>
         <th>IPs</th>
         <th>Status</th>
-        <th>Speed</th>
+        <th>Speed (ms)</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -114,67 +132,119 @@ td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
 
 <script>
 const dnsServers = [
-  {name:"Google", url:"https://www.google.com/favicon.ico", ips:["8.8.8.8","8.8.4.4"]},
-  {name:"Cloudflare", url:"https://www.cloudflare.com/favicon.ico", ips:["1.1.1.1","1.0.0.1"]},
-  {name:"Quad9", url:"https://www.quad9.net/favicon.ico", ips:["9.9.9.9","149.112.112.112"]},
-  {name:"AdGuard", url:"https://adguard.com/favicon.ico", ips:["94.140.14.14","94.140.15.15"]},
-  {name:"OpenDNS", url:"https://www.opendns.com/favicon.ico", ips:["208.67.222.222","208.67.220.220"]},
-  {name:"IranCell", url:"http://185.51.200.2/favicon.ico", ips:["185.51.200.2","185.51.200.3"]},
-  {name:"Shatel", url:"http://178.22.122.100/favicon.ico", ips:["178.22.122.100","185.55.225.11"]}
+  // IMPORTANT: The URL for testing MUST resolve to the IP listed to simulate DNS latency effectively.
+  // Using an image URL on a known high-availability server simulates a reliable web request.
+  {name:"Google", urls:["https://8.8.8.8/favicon.ico", "https://8.8.4.4/favicon.ico"], ips:["8.8.8.8","8.8.4.4"]},
+  {name:"Cloudflare", urls:["https://1.1.1.1/favicon.ico", "https://1.0.0.1/favicon.ico"], ips:["1.1.1.1","1.0.0.1"]},
+  {name:"Quad9", urls:["https://9.9.9.9/favicon.ico", "https://149.112.112.112/favicon.ico"], ips:["9.9.9.9","149.112.112.112"]},
+  {name:"AdGuard", urls:["https://94.140.14.14/favicon.ico", "https://94.140.15.15/favicon.ico"], ips:["94.140.14.14","94.140.15.15"]},
+  {name:"OpenDNS", urls:["https://208.67.222.222/favicon.ico", "https://208.67.220.220/favicon.ico"], ips:["208.67.222.222","208.67.220.220"]},
+  // Regional DNS examples - note: These must be changed to actual URLs if they don't respond to direct IP requests.
+  {name:"ISP 1", urls:["http://185.51.200.2/favicon.ico", "http://185.51.200.3/favicon.ico"], ips:["185.51.200.2","185.51.200.3"]},
+  {name:"ISP 2", urls:["http://178.22.122.100/favicon.ico", "http://185.55.225.11/favicon.ico"], ips:["178.22.122.100","185.55.225.11"]}
 ];
 
+/**
+ * Returns a color based on the speed (ms) for the progress bar.
+ * @param {number} speed - The measured DNS response time in milliseconds.
+ * @returns {string} The hex color code.
+ */
 function getColor(speed){
-  if(speed<100) return "#22c55e";
-  if(speed<200) return "#3b82f6";
-  if(speed<400) return "#facc15";
-  return "#f87171";
+  if(speed<100) return "#22c55e"; // Excellent (Green)
+  if(speed<200) return "#3b82f6"; // Good (Blue)
+  if(speed<400) return "#facc15"; // Acceptable (Yellow)
+  return "#f87171"; // Slow (Red)
 }
 
+/**
+ * Fetches a URL with a specific timeout and returns the response time.
+ * @param {string} url - The URL to fetch.
+ * @param {number} timeout - The maximum time to wait in milliseconds.
+ * @returns {Promise<number>} The response time in ms, or the timeout value if it fails/times out.
+ */
 function fetchWithTimeout(url, timeout=1500){
   return new Promise(resolve => {
     const start = performance.now();
-    const timer = setTimeout(()=>resolve(Infinity), timeout);
-    fetch(url, {mode:'no-cors'})
-      .then(()=>{ clearTimeout(timer); resolve(performance.now()-start); })
-      .catch(()=>{ clearTimeout(timer); resolve(Infinity); });
+    const timer = setTimeout(()=>resolve(timeout), timeout); 
+    
+    // Fetching directly via IP simulates a DNS query latency test more accurately 
+    // by eliminating the need for *local* DNS resolution first.
+    fetch(url, {mode:'no-cors', cache: 'no-store'}) 
+      .then(()=>{ 
+        clearTimeout(timer); 
+        resolve(performance.now()-start); 
+      })
+      .catch(()=>{ 
+        clearTimeout(timer); 
+        resolve(timeout); 
+      });
   });
 }
 
-async function testDNS(url){
-  const time = await fetchWithTimeout(url,1500);
-  return time===Infinity ? 1500 : time;
+/**
+ * Executes a single DNS speed test by racing all available IP/URL combinations.
+ * This ensures the absolute fastest response time for the provider is recorded.
+ * @param {Array<string>} urls - The list of test URLs for the DNS server provider.
+ * @returns {Promise<number>} The fastest speed result in ms (capped at 1500ms).
+ */
+async function testDNSProvider(urls){
+  const maxTime = 1500;
+  // Create an array of Promises for all URLs, then race them.
+  const testPromises = urls.map(url => fetchWithTimeout(url, maxTime));
+  
+  // Return the time of the fastest successful fetch, or maxTime if all fail/timeout.
+  const fastestTime = await Promise.race(testPromises);
+  
+  return fastestTime > maxTime ? maxTime : fastestTime;
 }
 
+/**
+ * Copies text to the clipboard and shows an alert.
+ * @param {string} text - The text to copy.
+ */
 function copyToClipboard(text){
-  navigator.clipboard.writeText(text).then(()=>alert(`DNS address copied: ${text}`));
+  navigator.clipboard.writeText(text).then(
+    () => alert(`DNS address copied: ${text}`),
+    () => alert('Failed to copy to clipboard.')
+  );
 }
+
+// Attach copyToClipboard globally for the onclick handlers in the HTML.
+window.copyToClipboard = copyToClipboard;
 
 document.getElementById("startBtn").onclick = async function(){
   const btn = this;
   const tbody = document.querySelector('#dnsTable tbody');
   const bestDiv = document.getElementById("bestDNS");
+
   btn.disabled = true;
   bestDiv.textContent = '';
-  tbody.innerHTML = '<tr><td colspan="5"><div class="loader"></div></td></tr>';
+  
+  // Display initial loading state
+  tbody.innerHTML = '<tr><td colspan="5" data-label="Status"><div class="loader"></div><span>Testing in progress...</span></td></tr>';
 
   tbody.innerHTML = '';
+  
+  // 1. Prepare and render the initial rows
   let rows = dnsServers.map(dns => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td data-label="Priority">-</td>
       <td data-label="DNS Name">${dns.name}</td>
-      <td data-label="IPs">${dns.ips.map(ip => `<div>${ip} <button class="copy-btn" onclick="copyToClipboard('${ip}')">Copy</button></div>`).join('')}</td>
+      <td data-label="IPs">${dns.ips.map(ip => 
+        `<div>${ip} <button class="copy-btn" onclick="copyToClipboard('${ip}')">Copy</button></div>`
+      ).join('')}</td>
       <td data-label="Status"><span>Testing...</span></td>
       <td data-label="Speed">
         <div class="speed-bar-container">
           <div class="speed-bar"></div>
         </div>
-        <span class="speed-text"></span>
+        <span class="speed-text">0 ms</span>
       </td>
     `;
     tbody.appendChild(tr);
     return {
-      dns, tr, time:Infinity,
+      dns, tr, time: 0,
       bar: tr.querySelector('.speed-bar'),
       status: tr.querySelector('span'),
       priorityCell: tr.children[0],
@@ -182,34 +252,60 @@ document.getElementById("startBtn").onclick = async function(){
     };
   });
 
+  // 2. Start the fake loading animations
   rows.forEach(row => {
     let width = 0;
-    let interval = setInterval(()=>{
+    const interval = setInterval(()=>{
       width += Math.random()*5;
-      if(width>100) width=100;
+      if(width>95) width=95; 
       row.bar.style.width = width + '%';
-    },50);
+    }, 75); 
     row.interval = interval;
   });
 
-  for(const row of rows){
-    let time = await testDNS(row.dns.url);
+  // 3. Run the actual tests concurrently (using Promise.all)
+  const testPromises = rows.map(async (row) => {
+    // Use the new function that races all IPs for the provider
+    const time = await testDNSProvider(row.dns.urls); 
     row.time = time;
-    clearInterval(row.interval);
-    row.bar.style.width = '100%';
-    row.bar.style.background = getColor(time);
-    row.status.textContent = '✔️';
-    row.speedText.textContent = ` ${Math.round(time)} ms`;
-  }
+    return row; 
+  });
+  
+  const results = await Promise.all(testPromises);
 
-  rows.sort((a,b)=>a.time-b.time);
-  rows.forEach((row, index)=>{
+  // 4. Update rows with final results
+  results.forEach(row => {
+    clearInterval(row.interval);
+    
+    // Set final bar state
+    const displayTime = Math.round(row.time);
+    row.bar.style.width = '100%';
+    row.bar.style.background = getColor(displayTime);
+    row.status.textContent = displayTime >= 1500 ? '❌ Failed' : '✔️ OK';
+    // Ensure display is exact for failed/timeout cases
+    row.speedText.textContent = displayTime >= 1500 ? ` >${displayTime} ms (Timeout)` : `${displayTime} ms`;
+  });
+
+  // 5. Sort results and update priority
+  results.sort((a,b)=>a.time-b.time);
+  
+  // Re-render rows in sorted order and set priority
+  tbody.innerHTML = ''; 
+  results.forEach((row, index)=>{
     row.priorityCell.textContent = index+1;
     tbody.appendChild(row.tr);
   });
 
-  rows[0].tr.classList.add('fastest');
-  bestDiv.textContent = `🏆 Best DNS: ${rows[0].dns.name} (${Math.round(rows[0].time)} ms)`;
+  // 6. Highlight the fastest result
+  const fastestRow = results.find(row => row.time < 1500); 
+  if (fastestRow) {
+    fastestRow.tr.classList.add('fastest');
+    const bestTime = Math.round(fastestRow.time);
+    bestDiv.textContent = `🏆 Fastest DNS: ${fastestRow.dns.name} (${bestTime} ms)`;
+  } else {
+    bestDiv.textContent = "😔 All tests failed or timed out.";
+  }
+  
   btn.disabled = false;
 };
 </script>
