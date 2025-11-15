@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live DNS Tester & Advanced Speed Test - Final Version (Download Only)</title>
+<title>Live DNS Tester & Advanced Speed Test - Finalized</title>
 <style>
-/* 🎨 CSS Styles (Kept the same for styling consistency) */
+/* 🎨 CSS Styles (بدون تغییر) */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 body {
@@ -150,17 +150,15 @@ td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
     font-weight: bold;
     text-shadow: 0 0 5px #000;
 }
-/* New style for inline ping display (No longer needed, but keeping the class for layout) */
 .ping-live-display { 
-    /* color: #facc15; (Ping color removed) */
     font-weight: bold;
-    margin-right: 0; /* Margin removed */
+    margin-right: 0; 
 }
 
 /* --- Final Result Display Style --- */
 #speedTestResult {
     display: flex;
-    justify-content: center; /* Centered since there is only one item */
+    justify-content: center; 
     align-items: center;
     margin-top: 20px;
     padding: 15px 10px;
@@ -195,7 +193,6 @@ td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
 /* Start Button */
 #speedTestBtn {
     background: linear-gradient(135deg, #facc15, #f97316);
-    /* Adjusted padding for new text */
     padding: 15px 40px; 
     font-size: 1.3rem;
     color: #0f172a;
@@ -290,26 +287,27 @@ td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
         </div>
     </div>
 
-    <button id="speedTestBtn" onclick="runGlobalSpeedTest()">
-        <span id="buttonText">Start Download Test 🚀</span>
+    <button id="speedTestBtn">
+        <span id="buttonText">Start Speed Test (Download Only) 🚀</span>
         <div class="button-loader" id="buttonLoader"></div>
     </button>
 </div>
 <script>
-// --- Advanced Speed Test Settings ---
+// --- Advanced Speed Test Settings (Adjusted) ---
 const TEST_COUNT = 5; 
-// 🔴 FIX 5: Increased MAX_TIMEOUT for higher stability in high-latency networks
-const MAX_TIMEOUT = 5000; // Increased from 3000ms
-const DOWNLOAD_SIZE_BYTES = 10485760; // 10MB
+const MAX_TIMEOUT = 5000; // 5 seconds timeout
+// INCREASED SIZE: Using 50MB for longer, more accurate speed measurement
+const DOWNLOAD_SIZE_BYTES = 52428800; // 50MB (50 * 1024 * 1024)
 
-// Download Test URLs
+// URLS: Using public domains known for high CDN usage and reliability.
 const DOWNLOAD_URLS = [
+    // Cloudflare offers a dedicated speed test endpoint
     'https://speed.cloudflare.com/__down?bytes=' + DOWNLOAD_SIZE_BYTES,
-    'https://test.b.s.cloud/10M.bin',
-    'https://ipv4.download.thinkbroadband.com/10MB.zip' 
+    // Reliable large file test URL
+    'https://ipv4.download.thinkbroadband.com/50MB.zip' 
 ];
 
-// 🔴 FIX 6: Replaced some DNS URLs with more reliable, small static assets for stable ping testing
+// DNS Servers to test (بدون تغییر)
 const dnsServers = [
   {name:"Shecan", urls:["https://shecan.ir/favicon.ico"], domain:"shecan.ir"},
   {name:"Level 3", urls:["https://www.level3.com/favicon.ico"], domain:"level3.com"},
@@ -319,10 +317,10 @@ const dnsServers = [
 ];
 
 function getColor(speed){
-  if(speed<100) return "#22c55e";
-  if(speed<200) return "#3b82f6";
-  if(speed<400) return "#facc15";
-  return "#f87171";
+  if(speed<100) return "#22c55e"; // Green: Excellent
+  if(speed<200) return "#3b82f6"; // Blue: Good
+  if(speed<400) return "#facc15"; // Yellow: Fair
+  return "#f87171"; // Red: Slow/Poor
 }
 
 function getSpeedColor(speedMbps){
@@ -331,35 +329,59 @@ function getSpeedColor(speedMbps){
     return "#f87171"; 
 }
 
-// Improved: Added cache-busting and no-store for higher DNS accuracy
+/**
+ * Executes a fetch request with a defined timeout using AbortController for reliability.
+ */
 function fetchWithTimeout(url, timeout=MAX_TIMEOUT){
   return new Promise(resolve=>{
     const start = performance.now();
-    const urlWithCacheBuster = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
-    const timer = setTimeout(()=>resolve(timeout), timeout);
-    fetch(urlWithCacheBuster, {mode:'no-cors', cache:'no-store'})
-      .then(()=>{ clearTimeout(timer); resolve(performance.now()-start); })
-      .catch(()=>{ clearTimeout(timer); resolve(timeout); });
+    const urlWithCacheBuster = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(); 
+    const controller = new AbortController();
+    const signal = controller.signal;
+    
+    const timer = setTimeout(()=>{
+        controller.abort(); 
+        resolve(timeout);
+    }, timeout);
+    
+    fetch(urlWithCacheBuster, {
+        mode:'no-cors', 
+        cache:'no-store', 
+        signal: signal 
+    })
+      .then(()=>{ 
+          clearTimeout(timer); 
+          resolve(performance.now()-start); 
+      })
+      .catch(error=>{ 
+          clearTimeout(timer); 
+          if(error.name === 'AbortError') {
+              resolve(timeout); 
+          } else {
+              console.warn(`Fetch error for ${url}:`, error.message);
+              resolve(timeout);
+          }
+      });
   });
 }
 
-// 🔴 FIX 1: Added statusElement to report progress dynamically during DNS test
+/**
+ * Tests a DNS provider by fetching multiple URLs and calculating the average fastest response time.
+ */
 async function testDNSProvider(urls, statusElement){
   const results = [];
   for(let i=0;i<TEST_COUNT;i++){
     statusElement.textContent = `Testing (${i + 1}/${TEST_COUNT})...`; 
     
-    // 🔴 FIX: Minor addition for error robustness in case of global network issue
     try {
         const times = await Promise.all(urls.map(url=>fetchWithTimeout(url, MAX_TIMEOUT)));
         const fastest = Math.min(...times);
         if(fastest < MAX_TIMEOUT) results.push(fastest);
     } catch (e) {
         console.warn(`Fetch attempt failed in round ${i+1}. Treating as timeout.`);
-        results.push(MAX_TIMEOUT);
     }
     
-    await new Promise(r=>setTimeout(r,50));
+    await new Promise(r=>setTimeout(r,50)); 
   }
   
   return results.length ? results.reduce((a,b)=>a+b,0)/results.length : MAX_TIMEOUT;
@@ -373,14 +395,19 @@ window.copyToClipboard = function(text){
   });
 }
 
-// Function to fetch and display Public IP
+/**
+ * Fetches and displays Public IP and Geo-location data. (IP FIX CONFIRMED)
+ */
 async function fetchPublicIP() {
     const ipDisplayElement = document.getElementById("ipDisplay");
     try {
-        const ipResponse = await fetch('https://api64.ipify.org?format=json');
+        // 1. Get Public IP
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
         if (!ipResponse.ok) throw new Error('IP service response was not ok');
         const ipData = await ipResponse.json();
         const publicIP = ipData.ip;
+        
+        // 2. Get Geo-location
         const geoResponse = await fetch(`http://ip-api.com/json/${publicIP}?fields=countryCode,country,status`);
         
         let countryCode = 'N/A';
@@ -393,7 +420,8 @@ async function fetchPublicIP() {
                 countryName = geoData.country;     
             }
         }
-
+        
+        // 3. Display Result
         let flagUrl = countryCode !== 'N/A' ? `https://flagsapi.com/${countryCode}/flat/32.png` : '';
         let flagAlt = countryCode !== 'N/A' ? `${countryName} Flag` : '';
         let flagHtml = flagUrl ? `<img src="${flagUrl}" class="flag-icon" alt="${flagAlt}" title="${flagAlt}">` : '';
@@ -402,55 +430,69 @@ async function fetchPublicIP() {
 
     } catch (error) {
         console.error("Failed to fetch public IP or Geolocation:", error);
-        ipDisplayElement.innerHTML = `Your Public IP: <span>Error fetching IP or Country</span>`;
+        ipDisplayElement.innerHTML = `Your Public IP: <span>Error fetching IP or Country</span> (Check Console)`;
     }
 }
 
 
-// --- Download Test Function (Download Only) ---
+// --- Download Test Function (RE-FIXED for Live Progress and Stability) ---
 async function downloadSpeedTest(){
     const barElement = document.getElementById("speedBar");
     const statusElement = document.getElementById("speedStatus");
-    
     const url = DOWNLOAD_URLS[Math.floor(Math.random() * DOWNLOAD_URLS.length)];
     
     barElement.style.width = '0%';
     barElement.style.background = 'linear-gradient(90deg, #38bdf8, #22c55e, #38bdf8)'; 
-    barElement.style.backgroundSize = '200% 100%'; 
     barElement.style.animation = 'loadingEffect 1.5s linear infinite';
-    statusElement.innerHTML = `0% Initiating Download from: ${url.split('/')[2]}...`;
+    
+    const startOverall = performance.now();
+    let receivedLength = 0; 
+    let lastTime = startOverall;
+    const totalLength = DOWNLOAD_SIZE_BYTES; // Target size for comparison
+
+    statusElement.innerHTML = `0% Connecting to ${url.split('/')[2]}...`;
     
     try {
-        const start = performance.now();
-        const response = await fetch(url, { cache: 'no-store' });
+        const response = await fetch(url); 
         
         if (!response.ok || !response.body) {
-             const errorUrl = `Failed to initiate download from ${url.split('/')[2]}`;
-             throw new Error(`HTTP error! status: ${response.status || 'N/A'}. ${errorUrl}`);
+             throw new Error(`HTTP error! Status: ${response.status || 'N/A'}`);
         }
 
         const reader = response.body.getReader();
-        let receivedLength = 0; 
-        const totalLength = DOWNLOAD_SIZE_BYTES;
         
         while(true) {
             const { done, value } = await reader.read();
             if (done) break;
 
             receivedLength += value.length;
+            const currentTime = performance.now();
+            const timeElapsed = currentTime - startOverall;
+            
+            // Calculate current average speed
+            const speedMbps = ((receivedLength * 8) / (timeElapsed / 1000)) / 1000000;
+            
+            // Calculate progress based on the target size (DOWNLOAD_SIZE_BYTES)
             const percentage = Math.min(100, Math.round((receivedLength / totalLength) * 100));
             
             barElement.style.width = `${percentage}%`;
-            statusElement.innerHTML = `${percentage}% Downloading (${(receivedLength / 1024 / 1024).toFixed(2)} MB)`;
-
-            if (percentage === 100) {
-                statusElement.innerHTML = `100% Download Complete`;
+            statusElement.innerHTML = `${percentage}% | Speed: ${speedMbps.toFixed(2)} Mbps`;
+            
+            // Throttle UI update if necessary, but keep it fluid
+            if (currentTime - lastTime > 100) { 
+                lastTime = currentTime;
             }
         }
         
-        const end = performance.now();
-        const downloadTime = end - start; 
-        const speedMbps = ((totalLength * 8) / (downloadTime / 1000)) / 1000000;
+        const endOverall = performance.now();
+        const downloadTime = endOverall - startOverall; 
+        
+        if (downloadTime === 0 || receivedLength === 0) {
+            throw new Error('Zero time or zero bytes received after successful fetch.');
+        }
+
+        // Final calculation
+        const speedMbps = ((receivedLength * 8) / (downloadTime / 1000)) / 1000000;
         
         barElement.style.animation = 'none';
         
@@ -458,17 +500,16 @@ async function downloadSpeedTest(){
 
     } catch (error) {
         console.error("Download test failed:", error);
-        statusElement.innerHTML = `Download Error! Try again.`;
+        statusElement.innerHTML = `Download Error! Try again. (${error.message})`;
+        barElement.style.width = '100%';
         barElement.style.animation = 'none';
         barElement.style.background = '#f87171';
         return null;
     }
 }
 
-// ------------------------------------------
-
-// --- Main Global Speed Test Execution Function (Download Only) ---
-window.runGlobalSpeedTest = async function(){
+// --- Main Global Speed Test Execution Function ---
+async function runGlobalSpeedTest(){
     const btn = document.getElementById("speedTestBtn");
     const buttonText = document.getElementById("buttonText");
     const buttonLoader = document.getElementById("buttonLoader");
@@ -487,8 +528,8 @@ window.runGlobalSpeedTest = async function(){
     speedBar.style.width = '0%';
     speedBar.style.background = 'none'; 
     speedBar.style.animation = 'none'; 
-    
     statusElement.innerHTML = `Starting Download Test...`;
+    
     downloadSpeed = await downloadSpeedTest();
     
     if (downloadSpeed !== null) {
@@ -499,28 +540,23 @@ window.runGlobalSpeedTest = async function(){
     } else {
         downloadDisplay.textContent = 'FAIL';
         downloadDisplay.style.color = '#f87171';
-        statusElement.innerHTML = `Download failed. Check console for error.`;
     }
     
     btn.disabled = false;
     buttonText.textContent = "Re-run Download Test 🚀";
     buttonLoader.style.display = 'none';
-    speedBar.style.width = '0%'; 
-    speedBar.style.background = 'none'; 
 }
-// ------------------------------------------
 
+// --- Main DNS Test Execution Function ---
 document.getElementById("startBtn").onclick = async function(){
   const btn = this;
   const tbody = document.querySelector('#dnsTable tbody');
   const bestDiv = document.getElementById("bestDNS");
   
-  // 🔴 FIX 7: Removed setTimeout to ensure immediate button lock and table setup on first click
   btn.disabled = true;
   bestDiv.textContent = '';
   tbody.innerHTML = `<tr><td colspan="5"><div class="loader"></div>Starting tests...</td></tr>`; 
   
-  // Wait a moment for the DOM to update the loader before starting heavy work
   await new Promise(r => setTimeout(r, 10)); 
 
   tbody.innerHTML = '';
@@ -540,7 +576,7 @@ document.getElementById("startBtn").onclick = async function(){
     return {
         dns,
         tr,
-        time:0,
+        time: MAX_TIMEOUT, 
         bar:tr.querySelector('.speed-bar'),
         status:tr.querySelector('td[data-label="Status"] span'), 
         priorityCell:tr.children[0], 
@@ -549,48 +585,58 @@ document.getElementById("startBtn").onclick = async function(){
   });
 
   const testPromises = rows.map(async row=>{
-    // Pass the status element to the test function for real-time updates
     row.time = await testDNSProvider(row.dns.urls, row.status); 
     return row;
   });
 
-  let completedTests = 0;
-  for(let i=0;i<dnsServers.length;i++){
-    testPromises[i].then(row=>{
-      completedTests++;
-      const displayTime = Math.round(row.time);
+  Promise.all(testPromises).then(finalRows => {
       
-      const barWidth = Math.min(100, (MAX_TIMEOUT / displayTime) * 100 * 0.5); 
-      row.bar.style.width=`${barWidth}%`;
-      row.bar.style.background=getColor(displayTime);
-      
-      row.status.textContent = displayTime>=MAX_TIMEOUT?'❌ Failed':'✔️ OK';
-      row.speedText.textContent = displayTime>=MAX_TIMEOUT?`>${MAX_TIMEOUT} ms (Failed)`:`${displayTime} ms (Avg of ${TEST_COUNT})`;
+      finalRows.forEach(row => {
+          const displayTime = Math.round(row.time);
+          
+          const referenceTime = 200; 
+          const barWidth = Math.min(100, (referenceTime / displayTime) * 100); 
 
-      if(completedTests===dnsServers.length){
-        rows.sort((a,b)=>a.time-b.time);
-        tbody.innerHTML='';
-        rows.forEach((r,index)=>{ r.priorityCell.textContent=index+1; tbody.appendChild(r.tr); });
-        const fastestRow = rows.find(r=>r.time<MAX_TIMEOUT);
-        if(fastestRow){ 
+          row.bar.style.width=`${barWidth}%`;
+          row.bar.style.background=getColor(displayTime);
+          
+          row.status.textContent = displayTime>=MAX_TIMEOUT?'❌ Failed':'✔️ OK';
+          row.speedText.textContent = displayTime>=MAX_TIMEOUT?`>${MAX_TIMEOUT} ms (Failed)`:`${displayTime} ms (Avg of ${TEST_COUNT})`;
+      });
+      
+      finalRows.sort((a,b)=>a.time-b.time);
+      
+      tbody.innerHTML=''; 
+      finalRows.forEach((r,index)=>{ 
+          r.priorityCell.textContent=index+1; 
+          tbody.appendChild(r.tr); 
+      });
+      
+      const fastestRow = finalRows.find(r=>r.time<MAX_TIMEOUT);
+      if(fastestRow){ 
           fastestRow.tr.classList.add('fastest'); 
           bestDiv.textContent=`🏆 Fastest DNS: ${fastestRow.dns.name} (${Math.round(fastestRow.time)} ms)`;
-        } else {
+      } else {
           bestDiv.textContent="😔 All DNS tests failed or timed out. Try again.";
-        }
-        btn.disabled=false;
       }
-    });
-  }
+      
+      btn.disabled=false;
+  }).catch(error => {
+      console.error("An error occurred during DNS testing:", error);
+      bestDiv.textContent="An unexpected error occurred during the test.";
+      btn.disabled=false;
+  });
 };
 
 // --- Execute code on page load ---
 document.addEventListener('DOMContentLoaded', () => {
-    fetchPublicIP(); // Get IP
+    fetchPublicIP(); 
+    document.getElementById("speedTestBtn").onclick = runGlobalSpeedTest;
 });
 </script>
 </body>
 </html>
+
 
 
 
