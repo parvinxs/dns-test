@@ -49,12 +49,24 @@ h1 { color: #38bdf8; font-size: 2.2em; margin-bottom: 20px; display: flex; justi
   margin-bottom: 25px;
   font-weight: bold;
   display: flex;
+  flex-direction: column; /* Changed to column to stack IP and Location */
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
 }
-.ip-display span {
+.ip-info-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+.ip-info-line span {
     color: #f1f5f9;
+    font-weight: normal;
+}
+.location-text {
+    font-size: 0.9em;
+    color: #94a3b8;
     font-weight: normal;
 }
 
@@ -93,7 +105,7 @@ td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
 .speed-bar-container { position: relative; height: 18px; border-radius: 10px; background: rgba(255,255,255,0.1); overflow: hidden; margin-top: 5px; }
 .speed-bar { height: 100%; width: 0%; border-radius: 10px; transition: width 0.3s linear, background 0.3s linear; }
 
-.copy-btn { background: #3b82f6; border: none; color: #fff; padding: 4px 12px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; margin-top: 2px; transition: 0.3s; margin-left: 10px; }
+.copy-btn { background: #3b82f6; border: none; color: #fff; padding: 4px 12px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; margin-top: 2px; margin-left: 10px; transition: 0.3s; }
 .copy-btn:hover { background: #22c55e; transform: scale(1.05); }
 
 .fastest td { border: 2px solid #22c55e; box-shadow: 0 0 15px #22c55e88; font-weight: bold; color: #fff; }
@@ -246,7 +258,7 @@ td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
 <h1>⚡️ Live DNS Tester & Speed Test</h1>
 
 <div id="ipDisplay" class="ip-display">
-  <span>Fetching your Public IP...</span>
+  <span>Fetching your Public IP...</span> 
 </div>
 
 <h2>DNS Response Time Tester</h2>
@@ -403,38 +415,77 @@ window.copyToClipboard = function(text){
  */
 async function fetchPublicIP() {
     const ipDisplayElement = document.getElementById("ipDisplay");
-    try {
-        // 1. Get Public IP
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        if (!ipResponse.ok) throw new Error('IP service response was not ok');
-        const ipData = await ipResponse.json();
-        const publicIP = ipData.ip;
-        
-        // 2. Get Geo-location
-        const geoResponse = await fetch(`http://ip-api.com/json/${publicIP}?fields=countryCode,country,status`);
-        
-        let countryCode = 'N/A';
-        let countryName = '';
+    let publicIP = null;
 
+    try {
+        // 1. Try to get Public IP from a secure source
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        if (!ipResponse.ok) throw new Error('IP service 1 response was not ok');
+        const ipData = await ipResponse.json();
+        publicIP = ipData.ip;
+        
+    } catch (error) {
+        // Fallback to another secure IP service if the first one fails
+        console.warn("Primary IP fetch failed, trying fallback:", error.message);
+        try {
+            const ipResponse = await fetch('https://icanhazip.com');
+            if (!ipResponse.ok) throw new Error('IP service 2 response was not ok');
+            publicIP = (await ipResponse.text()).trim();
+        } catch (fallbackError) {
+            console.error("All IP services failed:", fallbackError);
+            ipDisplayElement.innerHTML = `<span>Error fetching IP</span>`;
+            return;
+        }
+    }
+
+    if (!publicIP) {
+         ipDisplayElement.innerHTML = `<span>Error fetching IP</span>`;
+         return;
+    }
+    
+    // 2. Get Geo-location
+    let countryCode = ''; 
+    let countryName = 'Unknown Country';
+    let city = 'Unknown City';
+
+    try {
+        // Fetching city and country name
+        // Using ip-api.com for geolocation
+        const geoResponse = await fetch(`https://ip-api.com/json/${publicIP}?fields=countryCode,country,city,status`);
+        
         if (geoResponse.ok) {
             const geoData = await geoResponse.json();
             if (geoData.status === 'success') {
                 countryCode = geoData.countryCode; 
                 countryName = geoData.country;     
+                city = geoData.city;
             }
         }
-        
-        // 3. Display Result
-        let flagUrl = countryCode !== 'N/A' ? `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png` : '';
-        let flagAlt = countryCode !== 'N/A' ? `${countryName} Flag` : '';
-        let flagHtml = flagUrl ? `<img src="${flagUrl}" class="flag-icon" alt="${flagAlt}" title="${flagAlt}">` : '';
-
-        ipDisplayElement.innerHTML = `${flagHtml} Your Public IP: <span>${publicIP}</span> <button class="copy-btn" onclick="copyToClipboard('${publicIP}')">Copy IP</button>`;
-
-    } catch (error) {
-        console.error("Failed to fetch public IP or Geolocation:", error);
-        ipDisplayElement.innerHTML = `Your Public IP: <span>Error fetching IP or Country</span> (Check Console)`;
+    } catch (e) {
+        console.warn("Geolocation fetch failed:", e.message);
     }
+    
+    // 3. Display Result: Including Flag, IP, Copy Button, City, and Country
+    let flagHtml = '';
+    
+    if (countryCode && countryCode.length === 2) {
+        // Using flagcdn.com for flag images
+        let flagUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+        let flagAlt = countryName ? `${countryName} Flag` : `${countryCode} Flag`;
+        flagHtml = `<img src="${flagUrl}" class="flag-icon" alt="${flagAlt}" title="${flagAlt}">`;
+    }
+
+    // New HTML structure for display
+    ipDisplayElement.innerHTML = `
+        <div class="ip-info-line">
+            ${flagHtml} 
+            Public IP: <span>${publicIP}</span> 
+            <button class="copy-btn" onclick="copyToClipboard('${publicIP}')">Copy IP</button>
+        </div>
+        <div class="location-text">
+            Location: ${city}, ${countryName}
+        </div>
+    `;
 }
 
 
@@ -450,7 +501,6 @@ async function downloadSpeedTest(){
     
     const startOverall = performance.now();
     let receivedLength = 0; 
-    let lastTime = startOverall;
     const totalLength = DOWNLOAD_SIZE_BYTES; // Target size for comparison
 
     statusElement.innerHTML = `0% Connecting to ${url.split('/')[2]}...`;
@@ -473,7 +523,6 @@ async function downloadSpeedTest(){
             const timeElapsed = currentTime - startOverall;
             
             // Calculate current average speed
-            // Formula: (Bytes * 8 / Time_in_seconds) / 1,000,000 = Mbps
             const speedMbps = ((receivedLength * 8) / (timeElapsed / 1000)) / 1000000;
             
             // Calculate progress based on the target size (DOWNLOAD_SIZE_BYTES)
@@ -481,8 +530,6 @@ async function downloadSpeedTest(){
             
             barElement.style.width = `${percentage}%`;
             statusElement.innerHTML = `${percentage}% | Live Speed: ${speedMbps.toFixed(2)} Mbps`;
-            
-            lastTime = currentTime;
         }
         
         const endOverall = performance.now();
@@ -637,4 +684,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
