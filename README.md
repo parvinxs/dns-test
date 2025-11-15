@@ -1,7 +1,7 @@
 #   xsparvin
 
 
-## Dns tester speed test show ip public 
+## Dns tester,speed test,show ip public 
 
 
 #تستر Dns آنلاین
