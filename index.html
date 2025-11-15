@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Live DNS Tester & Advanced Speed Test - Optimized for Speed</title>
 <style>
-/* 🎨 CSS Styles (بهبود یافته برای نمایش پرچم) */
+/* CSS Styles (Optimized for speed and readability) */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 body {
@@ -59,7 +59,7 @@ h1 { color: #38bdf8; font-size: 2.2em; margin-bottom: 20px; display: flex; justi
 }
 
 .flag-icon {
-    /* ابعاد اصلاح شده برای نمایش بهتر پرچم از سرویس جدید */
+    /* Fixed dimensions for better flag display from the new service */
     width: 40px; 
     height: 30px; 
     border: 1px solid rgba(255, 255, 255, 0.5);
@@ -294,21 +294,17 @@ td { background: rgba(0,0,0,0.2); font-size: 0.95rem; }
     </button>
 </div>
 <script>
-// --- Advanced Speed Test Settings (Adjusted for speed) ---
+// --- Advanced Speed Test Settings ---
 const TEST_COUNT = 5; 
 const MAX_TIMEOUT = 5000; 
-// DECREASED SIZE: Using 10MB for a quicker test finish
 const DOWNLOAD_SIZE_BYTES = 10485760; // 10MB (10 * 1024 * 1024)
 
-// URLS: Using public domains known for high CDN usage and reliability.
 const DOWNLOAD_URLS = [
-    // Cloudflare offers a dedicated speed test endpoint
     'https://speed.cloudflare.com/__down?bytes=' + DOWNLOAD_SIZE_BYTES,
-    // Reliable large file test URL
     'https://ipv4.download.thinkbroadband.com/10MB.zip' 
 ];
 
-// DNS Servers to test (بدون تغییر)
+// DNS Servers to test 
 const dnsServers = [
   {name:"Shecan", urls:["https://shecan.ir/favicon.ico"], domain:"shecan.ir"},
   {name:"Level 3", urls:["https://www.level3.com/favicon.ico"], domain:"level3.com"},
@@ -388,16 +384,22 @@ async function testDNSProvider(urls, statusElement){
   return results.length ? results.reduce((a,b)=>a+b,0)/results.length : MAX_TIMEOUT;
 }
 
+/**
+ * FIX: Using the modern Clipboard API with user feedback.
+ */
 window.copyToClipboard = function(text){
   navigator.clipboard.writeText(text).then(()=>{
+    // Simple confirmation for the user
+    alert(`IP: ${text} Copied!`);
     console.log(`Copied: ${text}`);
   }).catch(err => {
     console.error('Could not copy text: ', err);
+    alert('Failed to copy IP. Please copy manually.');
   });
 }
 
 /**
- * Fetches and displays Public IP and Geo-location data. (اصلاح شده برای پرچم)
+ * Fetches and displays Public IP and Geo-location data.
  */
 async function fetchPublicIP() {
     const ipDisplayElement = document.getElementById("ipDisplay");
@@ -409,7 +411,6 @@ async function fetchPublicIP() {
         const publicIP = ipData.ip;
         
         // 2. Get Geo-location
-        // استفاده از http://ip-api.com که رایگان و بدون محدودیت است
         const geoResponse = await fetch(`http://ip-api.com/json/${publicIP}?fields=countryCode,country,status`);
         
         let countryCode = 'N/A';
@@ -423,7 +424,7 @@ async function fetchPublicIP() {
             }
         }
         
-        // 3. Display Result - **FIX: تغییر آدرس پرچم به یک سرویس معتبر (flagcdn.com)**
+        // 3. Display Result
         let flagUrl = countryCode !== 'N/A' ? `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png` : '';
         let flagAlt = countryCode !== 'N/A' ? `${countryName} Flag` : '';
         let flagHtml = flagUrl ? `<img src="${flagUrl}" class="flag-icon" alt="${flagAlt}" title="${flagAlt}">` : '';
@@ -481,7 +482,6 @@ async function downloadSpeedTest(){
             barElement.style.width = `${percentage}%`;
             statusElement.innerHTML = `${percentage}% | Live Speed: ${speedMbps.toFixed(2)} Mbps`;
             
-            // Update last time for potential throttling logic (though not strictly needed here)
             lastTime = currentTime;
         }
         
@@ -637,3 +637,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
