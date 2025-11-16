@@ -1,1132 +1,1126 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live DNS Tester & Advanced Speed Test - Optimized for Speed</title>
-<style>
-/* 🎨 CSS Styles: Modern Dark Theme with RTL/LTR Support */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Vazirmatn:wght@400;700;900&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="h1Title">🚀 تست زنده DNS و سنجش سرعت</title>
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/e/e0/Rocket_icon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&family=Roboto:wght=400;700&display=swap" rel="stylesheet">
+    <style>
+        /* =================================================================
+           BASE STYLES & VARIABLES
+           ================================================================= */
+        :root {
+            --color-primary: #3b82f6; /* Blue */
+            --color-secondary: #10b981; /* Emerald/Green */
+            --color-accent: #f59e0b; /* Amber/Yellow */
+            --color-background: #f3f4f6; /* Light Gray */
+            --color-card-bg: #ffffff; /* White */
+            --color-text: #1f2937; /* Dark Gray */
+            --color-light-text: #6b7280; /* Medium Gray */
+            --color-border: #e5e7eb;
+            --color-shadow: rgba(0, 0, 0, 0.05);
+            --font-size-base: 16px;
+        }
 
-:root {
-  --color-primary: #38bdf8; /* Light Blue */
-  --color-secondary: #22c55e; /* Bright Green */
-  --color-accent: #facc15; /* Yellow */
-  --color-bg-dark: #0f172a; /* Main Dark Background */
-  --color-card-bg: #1e293b; /* Card Dark Background */
-  --color-text-light: #f1f5f9; /* Light Text */
-  --color-text-muted: #94a3b8; /* Muted Text */
-  --shadow-dark: 0 4px 15px rgba(0,0,0,0.5);
-}
+        /* Reset and Base Typography */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-body {
-  /* Dynamic font selection via JS: Roboto for LTR, Vazirmatn for RTL */
-  font-family: 'Roboto', sans-serif; 
-  background: linear-gradient(135deg, var(--color-bg-dark), #0f172a); 
-  color: var(--color-text-light);
-  text-align: center;
-  padding: 20px 10px;
-  min-height: 100vh;
-}
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 20px;
+            direction: rtl; /* Default to Persian (RTL) */
+            transition: all 0.3s;
+        }
 
-/* --- IP Display (Now including the Language Toggle) --- */
-.ip-display {
-  font-size: 1.3em;
-  color: var(--color-accent);
-  margin-top: -10px;
-  margin-bottom: 30px;
-  font-weight: bold;
-  background: var(--color-card-bg);
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: var(--shadow-dark);
-  max-width: 550px; /* Increased width slightly for country name */
-  margin: -10px auto 30px;
-  border-left: 5px solid var(--color-primary); /* Default LTR border */
-  transition: border 0.3s;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.ip-info-line {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    font-size: 0.9em; /* Smaller font for lines */
-}
-.ip-info-line span {
-    color: var(--color-text-light);
-    font-weight: normal;
-}
+        body.rtl-mode {
+            direction: rtl;
+        }
 
-/* --- Language Toggle Button (New Position) --- */
-#languageToggle {
-    background: var(--color-primary);
-    color: var(--color-bg-dark);
-    border: none;
-    padding: 6px 15px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    align-self: center; /* Center the button within the flex container */
-    margin-top: 5px;
-    max-width: fit-content;
-}
-#languageToggle:hover {
-    background: var(--color-secondary);
-    box-shadow: 0 0 10px var(--color-secondary);
-}
-.flag-icon {
-    width: 45px; 
-    height: 30px; 
-    border: 2px solid var(--color-text-muted);
-    border-radius: 6px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
-}
-.copy-btn { 
-    background: var(--color-primary); 
-    border: none; 
-    color: var(--color-bg-dark); 
-    padding: 6px 15px; 
-    border-radius: 10px; 
-    font-size: 0.9rem; 
-    cursor: pointer; 
-    font-weight: 700;
-    transition: 0.3s; 
-}
-.copy-btn:hover { 
-    background: var(--color-secondary); 
-    transform: translateY(-2px) scale(1.02); 
-    box-shadow: 0 5px 10px rgba(0,0,0,0.5);
-}
+        body[lang="en"] {
+            font-family: 'Roboto', sans-serif;
+            direction: ltr;
+        }
+        
+        /* Containers and Layout */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-/* New: Reveal IP Button Style */
-#revealIpBtn {
-    background: linear-gradient(135deg, var(--color-accent), #f97316);
-    color: var(--color-bg-dark);
-    border: none;
-    padding: 10px 25px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    margin-top: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    max-width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
-}
-#revealIpBtn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-}
-#revealIpBtn:disabled {
-    opacity: 0.7;
-    cursor: wait;
-    background: linear-gradient(135deg, #64748b, #94a3b8); 
-    color: var(--color-text-light); 
-}
+        .card {
+            background-color: var(--color-card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--color-shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
 
-/* --- Header and Creator --- */
-.creator {
-  font-size: 1em;
-  color: var(--color-text-muted);
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.creator a {
-  color: var(--color-primary);
-  text-decoration: none;
-  font-weight: bold;
-  text-shadow: 0 0 5px var(--color-primary), 0 0 10px var(--color-primary);
-  transition: all 0.3s ease;
-}
-.creator a:hover {
-  color: var(--color-secondary);
-  text-shadow: 0 0 8px var(--color-secondary), 0 0 15px var(--color-secondary);
-  text-decoration: underline;
-}
+        /* Headings */
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
 
-h1 { 
-    color: var(--color-primary); 
-    font-size: 2.5em; 
-    margin-bottom: 25px; 
-    font-weight: 900;
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    gap: 10px; 
-    text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-}
+        h1 {
+            color: var(--color-primary);
+            font-size: 2.2rem;
+        }
 
-h2 {
-    color: var(--color-text-light);
-    font-size: 1.8em;
-    font-weight: 700;
-    margin-bottom: 20px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 10px;
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
-}
+        h2 {
+            color: var(--color-text);
+            font-size: 1.6rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--color-border);
+        }
 
-/* --- DNS Test Button --- */
-.best-dns { font-size: 1.6em; color: var(--color-secondary); font-weight: 900; margin-bottom: 25px; }
+        /* Buttons */
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s, opacity 0.3s, transform 0.1s;
+            margin: 5px;
+            white-space: nowrap;
+        }
 
-#startBtn {
-  background: linear-gradient(90deg, var(--color-secondary), #60a5fa);
-  border: none;
-  color: var(--color-bg-dark);
-  padding: 20px 60px;
-  font-size: 1.8rem;
-  font-weight: 900;
-  border-radius: 40px;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 60px rgba(34,197,94,0.5);
-  margin-bottom: 40px;
-  letter-spacing: 1px;
-}
-#startBtn:hover { 
-    transform: scale(1.08) translateY(-3px); 
-    box-shadow: 0 15px 40px rgba(0,0,0,0.6), 0 0 80px rgba(34,197,94,0.7); 
-}
-#startBtn:disabled { 
-    opacity: 0.6; 
-    cursor: wait; 
-    transform: none; 
-    box-shadow: none; 
-    background: linear-gradient(90deg, #64748b, #94a3b8);
-    color: #fff;
-}
+        button:hover:not(:disabled) {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
 
-/* --- DNS Results Table --- */
-table { 
-    width: 100%; 
-    max-width: 950px; 
-    margin: 0 auto 40px; 
-    border-collapse: separate; 
-    border-spacing: 0 10px; 
-    background: none;
-}
-th { 
-    padding: 15px 15px; 
-    text-align: center; 
-    background: var(--color-primary); 
-    font-weight: bold; 
-    font-size: 1.1rem; 
-    color: var(--color-bg-dark); 
-    position: sticky; 
-    top: 0;
-}
-thead tr { 
-    box-shadow: var(--shadow-dark); 
-    border-radius: 12px; 
-    overflow: hidden; 
-}
-td { 
-    padding: 15px 15px; 
-    background: rgba(30, 41, 59, 0.8); 
-    font-size: 1rem; 
-    border: none;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    transition: background 0.3s ease;
-}
-tr:hover td {
-    background: rgba(30, 41, 59, 1); 
-}
-tr:first-child th:first-child { border-radius: 12px 0 0 0; }
-tr:first-child th:last-child { border-radius: 0 12px 0 0; }
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
 
-.speed-bar-container { 
-    position: relative; 
-    height: 15px; 
-    border-radius: 8px; 
-    background: rgba(255,255,255,0.15); 
-    overflow: hidden; 
-    margin-top: 5px; 
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
-}
-.speed-bar { 
-    height: 100%; 
-    width: 0%; 
-    border-radius: 8px; 
-    transition: width 0.6s ease-out, background 0.3s linear; 
-}
-.speed-text {
-    font-weight: 700;
-    margin-top: 5px;
-    display: block;
-    color: var(--color-text-light);
-}
+        .primary-btn {
+            background-color: var(--color-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .copy-btn {
+            background-color: var(--color-light-text);
+            color: white;
+            padding: 5px 10px;
+            margin: 0;
+            font-size: 0.8rem;
+        }
 
-.fastest td { 
-    border: 3px solid var(--color-secondary); 
-    box-shadow: 0 0 20px var(--color-secondary), 0 0 10px #fff; 
-    font-weight: bold; 
-    color: #fff; 
-    background: rgba(34, 197, 94, 0.2);
-    animation: pulseGlow 1.5s infinite alternate;
-}
-@keyframes pulseGlow {
-    from { box-shadow: 0 0 20px var(--color-secondary); }
-    to { box-shadow: 0 0 30px var(--color-secondary), 0 0 5px #fff; }
-}
+        #languageToggle {
+            background-color: var(--color-accent);
+            color: white;
+            font-size: 0.9rem;
+        }
 
-.loader { 
-    margin: 0 auto; 
-    width: 30px; 
-    height: 30px; 
-    border: 4px solid rgba(56, 189, 248, 0.2); 
-    border-top-color: var(--color-primary); 
-    border-radius: 50%; 
-    animation: spin 1s linear infinite; 
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+        /* IP Section */
+        #ipSection {
+            text-align: center;
+            padding: 15px;
+            background-color: #e0f2fe; /* Light Blue BG */
+            border-radius: 8px;
+            margin-bottom: 25px;
+            color: #0369a1; /* Darker Blue Text */
+        }
 
+        #ipInitialState {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-/* --- Global Speed Test Section --- */
-#globalSpeedTestSection {
-    margin: 60px auto;
-    padding: 30px;
-    max-width: 650px;
-    background: var(--color-card-bg);
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.7), 0 0 50px rgba(250, 204, 21, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-.speed-bar-container-global {
-    height: 35px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 18px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: inset 0 3px 6px rgba(0,0,0,0.5);
-    margin: 20px auto 10px;
-    max-width: 400px;
-}
-.speed-bar-global {
-    height: 100%;
-    width: 0%;
-    transition: width 0.1s linear;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 15px rgba(255,255,255,0.3);
-    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary), var(--color-primary));
-    background-size: 200% 100%;
-}
-.speed-status-global {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    line-height: 35px;
-    color: var(--color-text-light);
-    font-weight: 700;
-    text-shadow: 0 0 5px #000, 0 0 10px var(--color-primary);
-    font-size: 1.1em;
-}
+        #ipInitialState span {
+            margin-bottom: 15px;
+            font-weight: 400;
+            font-size: 1.1rem;
+        }
 
-/* Final Result */
-#speedTestResult {
-    display: flex;
-    justify-content: center; 
-    align-items: center;
-    margin-top: 30px;
-    padding: 20px;
-    background: rgba(0,0,0,0.5);
-    border-radius: 15px;
-    min-height: 100px;
-    transition: all 0.5s ease;
-    border: 1px solid var(--color-accent);
-}
-.speed-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 20px;
-}
-.speed-label {
-    font-size: 1.2em;
-    font-weight: 700;
-    color: var(--color-text-muted);
-    margin-bottom: 5px;
-}
-.speed-number {
-    font-size: 3em; 
-    font-weight: 900;
-    line-height: 1;
-    margin: 5px 0;
-    text-shadow: 0 0 15px rgba(255,255,255,0.5);
-}
-.speed-unit {
-    font-size: 1.1em;
-    color: var(--color-text-muted);
-}
+        #ipContent {
+            display: none; /* Initially hidden */
+            flex-direction: column;
+            gap: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
 
+        .ip-info-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
 
-/* Speed Test Button */
-#speedTestBtn {
-    background: linear-gradient(135deg, var(--color-accent), #f97316);
-    padding: 15px 45px; 
-    font-size: 1.4rem;
-    color: var(--color-bg-dark);
-    border-radius: 30px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 40px rgba(250, 204, 21, 0.5);
-    margin-top: 25px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex; 
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-weight: 900;
-}
-#speedTestBtn:disabled { 
-    opacity: 0.8; 
-    cursor: wait; 
-    background: linear-gradient(135deg, #64748b, #94a3b8); 
-    color: var(--color-text-light); 
-    box-shadow: none;
-}
-#speedTestBtn:hover:not(:disabled) { 
-    transform: scale(1.05) translateY(-2px); 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.6), 0 0 50px rgba(250, 204, 21, 0.7); 
-}
+        .ip-info-line span {
+            font-weight: 400;
+            margin: 0 5px;
+            color: var(--color-text);
+        }
+        
+        .flag-icon {
+            width: 25px;
+            height: auto;
+            border-radius: 3px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* DNS Table */
+        #dnsTester {
+            overflow-x: auto;
+        }
 
-/* --- Responsive/Mobile Styles --- */
-@media screen and (max-width: 768px) {
-  h1 { font-size: 2em; }
-  h2 { font-size: 1.5em; }
-  #startBtn { padding: 15px 30px; font-size: 1.5rem; }
-  .ip-display { max-width: 100%; padding: 10px; }
-  .speed-number { font-size: 2.5em; }
-  #globalSpeedTestSection { padding: 20px; }
+        #dnsTable {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            min-width: 600px;
+        }
 
-  /* Stacked table for mobile */
-  table, thead, tbody, th, td, tr { display: block; }
-  thead tr { display: none; } 
-  
-  tr { 
-    margin-bottom: 20px; 
-    background: var(--color-card-bg); 
-    border-radius: 12px; 
-    padding: 0; 
-    box-shadow: var(--shadow-dark);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  td { 
-    display: flex; 
-    justify-content: space-between; 
-    padding: 12px 15px; 
-    text-align: left; /* Default LTR alignment */
-    font-size: 0.95rem; 
-    border-bottom: 1px solid rgba(255,255,255,0.1); 
-    align-items: center; 
-    background: none;
-  }
-  td:last-child { border-bottom: none; }
-  /* Label for each cell */
-  td::before { 
-    content: attr(data-label); 
-    font-weight: 700; 
-    color: var(--color-primary); 
-    flex-shrink: 0; 
-    width: 120px;
-    text-align: right; /* Default LTR label alignment */
-  }
-  .copy-btn { padding: 3px 8px; font-size: 0.8rem; margin-right: 5px; }
-  .speed-bar-container { width: 100%; }
-}
+        #dnsTable th, #dnsTable td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid var(--color-border);
+        }
 
-/* RTL Adjustments (for Farsi) */
-.rtl-mode {
-    direction: rtl;
-    text-align: right;
-}
-.rtl-mode .ip-display {
-    border-left: none;
-    border-right: 5px solid var(--color-primary);
-}
-.rtl-mode td {
-    text-align: right; 
-}
-.rtl-mode td::before { 
-    text-align: left; 
-}
-.rtl-mode .copy-btn { 
-    margin-left: 5px;
-    margin-right: 0;
-}
-</style>
+        #dnsTable thead th {
+            background-color: var(--color-background);
+            color: var(--color-text);
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        #dnsTable tbody tr:hover {
+            background-color: #f7f7f7;
+        }
+
+        #dnsTable td:first-child, #dnsTable th:first-child {
+            border-radius: 0 8px 0 0; /* Adjust for RTL/LTR */
+        }
+        
+        /* LTR adjustments */
+        body[dir="ltr"] #dnsTable td:first-child, body[dir="ltr"] #dnsTable th:first-child {
+            border-radius: 8px 0 0 0;
+        }
+
+        body[dir="rtl"] #dnsTable td:first-child, body[dir="rtl"] #dnsTable th:first-child {
+            border-radius: 0 8px 0 0;
+        }
+
+        .dns-ip-cell-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .dns-ips {
+            line-height: 1.2;
+        }
+
+        .single-ip {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--color-light-text);
+        }
+
+        /* Status and Speed Indicators */
+        #dnsTable td span {
+            font-weight: 700;
+        }
+        
+        #bestDNS {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background-color: #fffbeb;
+            border-radius: 8px;
+            color: var(--color-accent);
+        }
+
+        .fastest {
+            background-color: #ecfdf5 !important; /* Light green highlight */
+            border: 2px solid var(--color-secondary);
+        }
+
+        /* Speed Bar Styling */
+        .speed-bar-container {
+            height: 8px;
+            width: 100%;
+            background-color: var(--color-border);
+            border-radius: 4px;
+            margin: 5px auto;
+            overflow: hidden;
+        }
+        
+        .speed-bar {
+            height: 100%;
+            width: 0;
+            background-color: var(--color-primary);
+            transition: width 0.5s, background-color 0.5s;
+        }
+        
+        .speed-text {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--color-light-text);
+        }
+        
+        /* Loader Animation */
+        .loader {
+            border: 4px solid var(--color-border);
+            border-top: 4px solid var(--color-primary);
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-inline-end: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes loadingEffect {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        /* Global Speed Test Section */
+        #speedTestSection {
+            text-align: center;
+        }
+
+        .speed-display {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 15px 0;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .speed-unit {
+            font-size: 1.5rem;
+            color: var(--color-light-text);
+            align-self: flex-end;
+        }
+
+        #speedStatus {
+            font-style: italic;
+            color: var(--color-light-text);
+            margin-bottom: 15px;
+            min-height: 20px;
+        }
+        
+        /* Button Loader for Speed Test */
+        #speedTestBtn {
+            min-width: 250px;
+            height: 45px;
+        }
+
+        #buttonLoader {
+            display: none;
+            margin-inline-start: 10px;
+        }
+
+        /* Footer/Creator Info */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 1px solid var(--color-border);
+            font-size: 0.9rem;
+            color: var(--color-light-text);
+        }
+
+        .footer a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+
+        /* =================================================================
+           RESPONSIVE DESIGN (Mobile First)
+           ================================================================= */
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            button {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            /* DNS Table - Mobile view */
+            #dnsTable thead {
+                display: none; /* Hide headers */
+            }
+
+            #dnsTable, #dnsTable tbody, #dnsTable tr, #dnsTable td {
+                display: block;
+                width: 100%;
+            }
+
+            #dnsTable tr {
+                margin-bottom: 15px;
+                border: 1px solid var(--color-border);
+                border-radius: 8px;
+                display: flex;
+                flex-direction: column;
+            }
+
+            #dnsTable td {
+                text-align: start;
+                border-bottom: 1px dotted var(--color-border);
+                padding: 10px 15px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            #dnsTable tr:last-child {
+                border-bottom: none;
+            }
+
+            #dnsTable td:before {
+                /* Data-label is the column name */
+                content: attr(data-label);
+                font-weight: 700;
+                margin-inline-end: 15px;
+                color: var(--color-text);
+            }
+            
+            /* Specific alignment for speed bar */
+            #dnsTable td:nth-child(6) { /* Speed column */
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            #dnsTable td:nth-child(6) .speed-bar-container {
+                width: 90%;
+            }
+
+            #dnsTable td:last-child {
+                border-bottom: none;
+            }
+            
+            .dns-ip-cell-content {
+                align-items: flex-end;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div class="creator" data-i18n="creatorText">
-  Created by <strong>XSParvin</strong> | 
-  <a href="https://t.me/xsfsociety" target="_blank" rel="noopener noreferrer">Telegram Channel</a>
-</div>
+    <div class="container">
+        <header>
+            <h1 data-i18n="h1Title">🚀 تست زنده DNS و سنجش سرعت</h1>
+        </header>
 
-<h1 data-i18n="h1Title">⚡️ Live DNS Tester & Speed Test</h1>
-
-<div id="ipDisplay" class="ip-display">
-    <div id="ipContent" style="display:none;">
-        </div>
-    <div id="ipInitialState">
-        <span data-i18n="ipClickToReveal">Click to Reveal Public IP</span>
-        <button id="revealIpBtn" onclick="revealPublicIP()">
-            <span data-i18n="revealIpBtnText">Reveal IP</span> 💡
-        </button>
-        <button id="languageToggle" onclick="switchLanguage()">فارسی 🔄 English</button>
-    </div>
-</div>
-
-<h2 data-i18n="h2Dns">⏰ DNS Response Time Tester</h2>
-<div id="bestDNS" class="best-dns"></div>
-<button id="startBtn" data-i18n="startDnsBtn">🚀 Start DNS Test</button>
-
-<div id="results">
-  <table id="dnsTable">
-    <thead>
-      <tr>
-        <th data-i18n="thPriority">Priority</th>
-        <th data-i18n="thName">DNS Name</th>
-        <th data-i18n="thDomain">Domain</th>
-        <th data-i18n="thStatus">Status</th>
-        <th data-i18n="thSpeed">Speed (ms)</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<hr style="max-width: 850px; border-color: rgba(255, 255, 255, 0.1); margin: 50px auto;">
-
-<div id="globalSpeedTestSection">
-    <h2 data-i18n="h2Speed">📡 Global Connection Download Speed Test</h2>
-    <div class="speed-test-widget">
-        <div class="speed-bar-container-global">
-            <div class="speed-bar-global" id="speedBar"></div>
-            <div class="speed-status-global" id="speedStatus" data-i18n="statusReady">
-                Ready to test
+        <section id="ipSection" class="card">
+            <div id="ipInitialState">
+                <span data-i18n="ipClickToReveal">برای نمایش IP عمومی کلیک کنید</span>
+                <button id="revealIpBtn" class="primary-btn" onclick="revealPublicIP()">
+                    <span data-i18n="revealIpBtnText">نمایش IP</span>
+                </button>
+                 <button id="languageToggle" onclick="switchLanguage()" style="margin-top: 10px;"></button>
             </div>
-        </div>
+            <div id="ipContent" style="display: none;">
+                </div>
+        </section>
+
+        <section id="dnsTester" class="card">
+            <h2 data-i18n="h2Dns">⏰ سنجش زمان پاسخگویی DNS</h2>
+
+            <div style="text-align: center; margin-bottom: 15px;">
+                <button id="startBtn" class="primary-btn" data-i18n="startDnsBtn">
+                    شروع تست DNS ⚡️
+                </button>
+            </div>
+            
+            <div id="bestDNS"></div>
+
+            <div style="overflow-x: auto;">
+                <table id="dnsTable">
+                    <thead>
+                        <tr>
+                            <th data-i18n="thPriority">اولویت</th>
+                            <th data-i18n="thName">نام DNS</th>
+                            <th data-i18n="thIP">IP سرور DNS</th> 
+                            <th data-i18n="thDomain">دامنه</th>
+                            <th data-i18n="thStatus">وضعیت</th>
+                            <th data-i18n="thSpeed">سرعت (ms)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="6" data-i18n="statusReady">آماده برای تست</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="speedTestSection" class="card">
+            <h2 data-i18n="h2Speed">📡 تست سرعت دانلود اتصال جهانی</h2>
+            
+            <div id="speedBarContainer" class="speed-bar-container" style="height: 15px;">
+                <div id="speedBar" class="speed-bar"></div>
+            </div>
+
+            <p id="speedStatus" data-i18n="statusReady" style="margin: 10px 0;">آماده برای تست</p>
+
+            <div class="speed-display">
+                <span id="downloadSpeedDisplay">--</span> 
+                <span class="speed-unit">Mbps</span>
+            </div>
+
+            <button id="speedTestBtn" class="primary-btn">
+                <span id="buttonText" data-i18n="startSpeedBtn">شروع تست سرعت (فقط دانلود) 🌐</span>
+                <div id="buttonLoader" class="loader"></div>
+            </button>
+        </section>
+
+        <footer class="footer">
+            <p data-i18n="creatorText">ساخته شده توسط <strong>XSParvin</strong> | <a href="https://t.me/xsfsociety" target="_blank" rel="noopener noreferrer">کانال تلگرام</a></p>
+        </footer>
+
     </div>
 
-    <div id="speedTestResult">
-        <div class="speed-item">
-            <span class="speed-label" data-i18n="speedLabelDownload">Download</span>
-            <span class="speed-number" id="downloadSpeedDisplay" style="color:var(--color-primary);">--</span>
-            <span class="speed-unit">Mbps</span>
-        </div>
-    </div>
+    <script>
+        // --- Language Data (i18n) ---
+        const langData = {
+            en: {
+                // Global
+                currentLang: 'en',
+                font: 'Roboto',
+                toggleBtn: 'فارسی 🔄 English',
+                // HTML Text
+                creatorText: 'Created by <strong>XSParvin</strong> | <a href="https://t.me/xsfsociety" target="_blank" rel="noopener noreferrer">Telegram Channel</a>',
+                h1Title: '⚡️ Live DNS Tester & Speed Test',
+                ipClickToReveal: 'Click to Reveal Public IP', 
+                revealIpBtnText: 'Reveal IP', 
+                ipFetching: 'Fetching your Public IP and Geo-location...', 
+                publicIpLabel: 'Public IP:',
+                countryLabel: 'Country:', 
+                copyIpBtn: 'Copy IP',
+                h2Dns: '⏰ DNS Response Time Tester',
+                startDnsBtn: '🚀 Start DNS Test',
+                thPriority: 'Priority',
+                thName: 'DNS Name',
+                thIP: 'DNS IP', // NEW KEY
+                thDomain: 'Domain',
+                thStatus: 'Status',
+                thSpeed: 'Speed (ms)',
+                loaderDns: 'Starting tests...',
+                h2Speed: '📡 Global Connection Download Speed Test',
+                statusReady: 'Ready to test',
+                speedLabelDownload: 'Download',
+                startSpeedBtn: 'Start Speed Test (Download Only) 🌐',
+                rerunSpeedBtn: 'Re-run Download Test 🌐',
+                buttonTesting: 'Testing...',
 
-    <button id="speedTestBtn">
-        <span id="buttonText" data-i18n="startSpeedBtn">Start Speed Test (Download Only) 🌐</span>
-        <div class="button-loader" id="buttonLoader"></div>
-    </button>
-</div>
+                // JS Strings
+                copyAlert1: 'Copied!',
+                copyAlert2: 'Failed to copy IP. Please copy manually.',
+                testDnsStatus: 'Testing',
+                downloadStatus1: 'Connecting to',
+                downloadStatus2: 'Live Speed:',
+                downloadError: 'Download Error! Try again.',
+                speedStatusStart: 'Starting Download Test...',
+                downloadResult1: 'Download:',
+                downloadResult2: 'Test Complete!',
+                downloadFail: 'FAIL',
+                dnsFail: 'Failed',
+                dnsSuccess: 'OK',
+                dnsAvg: '(Avg of',
+                dnsFailedText: '(Failed)',
+                fastestDns: '🏆 Fastest DNS:',
+                allDnsFail: '😔 All DNS tests failed or timed out. Try again.',
+                generalError: 'An unexpected error occurred during the test.',
+                unknownCountry: 'Unknown',
+                copyDnsBtn: 'Copy IPs' // NEW KEY
+            },
+            fa: {
+                // Global
+                currentLang: 'fa',
+                font: 'Vazirmatn',
+                toggleBtn: 'English 🔄 فارسی',
+                // HTML Text
+                creatorText: 'ساخته شده توسط <strong>XSParvin</strong> | <a href="https://t.me/xsfsociety" target="_blank" rel="noopener noreferrer">کانال تلگرام</a>',
+                h1Title: '🚀 تست زنده DNS و سنجش سرعت',
+                ipClickToReveal: 'برای نمایش IP عمومی کلیک کنید', 
+                revealIpBtnText: 'نمایش IP', 
+                ipFetching: '...در حال دریافت IP عمومی و موقعیت جغرافیایی شما', 
+                publicIpLabel: 'IP عمومی:',
+                countryLabel: 'کشور:', 
+                copyIpBtn: 'کپی IP',
+                h2Dns: '⏰ سنجش زمان پاسخگویی DNS',
+                startDnsBtn: 'شروع تست DNS ⚡️',
+                thPriority: 'اولویت',
+                thName: 'نام DNS',
+                thIP: 'IP سرور DNS', // NEW KEY
+                thDomain: 'دامنه',
+                thStatus: 'وضعیت',
+                thSpeed: 'سرعت (ms)',
+                loaderDns: 'در حال شروع تست‌ها...',
+                h2Speed: '📡 تست سرعت دانلود اتصال جهانی',
+                statusReady: 'آماده برای تست',
+                speedLabelDownload: 'دانلود',
+                startSpeedBtn: 'شروع تست سرعت (فقط دانلود) 🌐',
+                rerunSpeedBtn: 'اجرای مجدد تست دانلود 🌐',
+                buttonTesting: 'در حال تست...',
 
-<script>
-// =================================================================
-//                 JAVASCRIPT - FUNCTIONALITY & LANGUAGE
-// =================================================================
-
-// --- Language Data (i18n) ---
-const langData = {
-    en: {
-        // Global
-        currentLang: 'en',
-        font: 'Roboto',
-        toggleBtn: 'فارسی 🔄 English',
-        // HTML Text
-        creatorText: 'Created by <strong>XSParvin</strong> | <a href="https://t.me/xsfsociety" target="_blank" rel="noopener noreferrer">Telegram Channel</a>',
-        h1Title: '⚡️ Live DNS Tester & Speed Test',
-        ipClickToReveal: 'Click to Reveal Public IP', // NEW
-        revealIpBtnText: 'Reveal IP', // NEW
-        ipFetching: 'Fetching your Public IP and Geo-location...', // UPDATED
-        publicIpLabel: 'Public IP:',
-        countryLabel: 'Country:', // NEW
-        copyIpBtn: 'Copy IP',
-        // Removed locationLabel
-        h2Dns: '⏰ DNS Response Time Tester',
-        startDnsBtn: '🚀 Start DNS Test',
-        thPriority: 'Priority',
-        thName: 'DNS Name',
-        thDomain: 'Domain',
-        thStatus: 'Status',
-        thSpeed: 'Speed (ms)',
-        loaderDns: 'Starting tests...',
-        h2Speed: '📡 Global Connection Download Speed Test',
-        statusReady: 'Ready to test',
-        speedLabelDownload: 'Download',
-        startSpeedBtn: 'Start Speed Test (Download Only) 🌐',
-        rerunSpeedBtn: 'Re-run Download Test 🌐',
-        buttonTesting: 'Testing...',
-        
-        // JS Strings
-        copyAlert1: 'Copied!',
-        copyAlert2: 'Failed to copy IP. Please copy manually.',
-        testDnsStatus: 'Testing',
-        downloadStatus1: 'Connecting to',
-        downloadStatus2: 'Live Speed:',
-        downloadError: 'Download Error! Try again.',
-        speedStatusStart: 'Starting Download Test...',
-        downloadResult1: 'Download:',
-        downloadResult2: 'Test Complete!',
-        downloadFail: 'FAIL',
-        dnsFail: 'Failed',
-        dnsSuccess: 'OK',
-        dnsAvg: '(Avg of',
-        dnsFailedText: '(Failed)',
-        fastestDns: '🏆 Fastest DNS:',
-        allDnsFail: '😔 All DNS tests failed or timed out. Try again.',
-        generalError: 'An unexpected error occurred during the test.',
-        unknownCountry: 'Unknown' 
-    },
-    fa: {
-        // Global
-        currentLang: 'fa',
-        font: 'Vazirmatn',
-        toggleBtn: 'English 🔄 فارسی',
-        // HTML Text
-        creatorText: 'ساخته شده توسط <strong>XSParvin</strong> | <a href="https://t.me/xsfsociety" target="_blank" rel="noopener noreferrer">کانال تلگرام</a>',
-        h1Title: '🚀 تست زنده DNS و سنجش سرعت',
-        ipClickToReveal: 'برای نمایش IP عمومی کلیک کنید', // NEW
-        revealIpBtnText: 'نمایش IP', // NEW
-        ipFetching: '...در حال دریافت IP عمومی و موقعیت جغرافیایی شما', // UPDATED
-        publicIpLabel: 'IP عمومی:',
-        countryLabel: 'کشور:', // NEW
-        copyIpBtn: 'کپی IP',
-        // Removed locationLabel
-        h2Dns: '⏰ سنجش زمان پاسخگویی DNS',
-        startDnsBtn: 'شروع تست DNS ⚡️',
-        thPriority: 'اولویت',
-        thName: 'نام DNS',
-        thDomain: 'دامنه',
-        thStatus: 'وضعیت',
-        thSpeed: 'سرعت (ms)',
-        loaderDns: 'در حال شروع تست‌ها...',
-        h2Speed: '📡 تست سرعت دانلود اتصال جهانی',
-        statusReady: 'آماده برای تست',
-        speedLabelDownload: 'دانلود',
-        startSpeedBtn: 'شروع تست سرعت (فقط دانلود) 🌐',
-        rerunSpeedBtn: 'اجرای مجدد تست دانلود 🌐',
-        buttonTesting: 'در حال تست...',
-        
-        // JS Strings
-        copyAlert1: 'کپی شد!',
-        copyAlert2: 'کپی IP انجام نشد. لطفاً به صورت دستی کپی کنید.',
-        testDnsStatus: 'در حال تست',
-        downloadStatus1: 'در حال اتصال به',
-        downloadStatus2: 'سرعت زنده:',
-        downloadError: 'خطا در دانلود! دوباره تلاش کنید.',
-        speedStatusStart: 'در حال شروع تست دانلود...',
-        downloadResult1: 'دانلود:',
-        downloadResult2: 'تست کامل شد!',
-        downloadFail: 'خطا',
-        dnsFail: 'ناموفق',
-        dnsSuccess: 'موفق',
-        dnsAvg: '(میانگین',
-        dnsFailedText: '(ناموفق)',
-        fastestDns: '🏆 سریع‌ترین DNS:',
-        allDnsFail: '😔 تمامی تست‌های DNS ناموفق بودند یا به پایان رسیدند. دوباره تلاش کنید.',
-        generalError: 'یک خطای غیرمنتظره در طول تست رخ داد.',
-        unknownCountry: 'نامشخص'
-    }
-};
-
-let currentLang = 'en';
-// ADDED countryName to cache
-let ipData = { publicIP: null, countryCode: null, countryName: null }; // Cache for IP data 
-
-/**
- * Updates the text content of elements based on the current language setting.
- */
-function updateDOMText() {
-    const lang = langData[currentLang];
-    document.documentElement.lang = lang.currentLang;
-    document.documentElement.dir = (currentLang === 'fa' ? 'rtl' : 'ltr');
-    document.body.style.fontFamily = `'${lang.font}', sans-serif`;
-    document.body.classList.toggle('rtl-mode', currentLang === 'fa');
-    
-    // Update i18n marked elements
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (lang[key]) {
-            if (key === 'creatorText') {
-                el.innerHTML = lang[key];
-            } else {
-                el.textContent = lang[key];
+                // JS Strings
+                copyAlert1: 'کپی شد!',
+                copyAlert2: 'کپی IP انجام نشد. لطفاً به صورت دستی کپی کنید.',
+                testDnsStatus: 'در حال تست',
+                downloadStatus1: 'در حال اتصال به',
+                downloadStatus2: 'سرعت زنده:',
+                downloadError: 'خطا در دانلود! دوباره تلاش کنید.',
+                speedStatusStart: 'در حال شروع تست دانلود...',
+                downloadResult1: 'دانلود:',
+                downloadResult2: 'تست کامل شد!',
+                downloadFail: 'خطا',
+                dnsFail: 'ناموفق',
+                dnsSuccess: 'موفق',
+                dnsAvg: '(میانگین',
+                dnsFailedText: '(ناموفق)',
+                fastestDns: '🏆 سریع‌ترین DNS:',
+                allDnsFail: '😔 تمامی تست‌های DNS ناموفق بودند یا به پایان رسیدند. دوباره تلاش کنید.',
+                generalError: 'یک خطای غیرمنتظره در طول تست رخ داد.',
+                unknownCountry: 'نامشخص',
+                copyDnsBtn: 'کپی IPها' // NEW KEY
             }
-        }
-    });
+        };
 
-    // Handle the language toggle button which is re-created
-    const ipContentDiv = document.getElementById('ipContent');
-    const ipInitialStateDiv = document.getElementById('ipInitialState');
+        let currentLang = 'fa'; // Default language set to Persian
+        let ipData = { publicIP: null, countryCode: null, countryName: null }; // Cache for IP data 
 
-    // Only update the toggle button inside the *visible* state
-    if (ipContentDiv && ipContentDiv.style.display !== 'none') {
-        const toggleButton = ipContentDiv.querySelector('#languageToggle');
-        if (toggleButton) {
-            toggleButton.textContent = lang.toggleBtn;
-        }
+        /**
+         * Updates the text content of elements based on the current language setting.
+         */
+        function updateDOMText() {
+            const lang = langData[currentLang];
+            document.documentElement.lang = lang.currentLang;
+            document.documentElement.dir = (currentLang === 'fa' ? 'rtl' : 'ltr');
+            document.body.style.fontFamily = `'${lang.font}', sans-serif`;
+            document.body.classList.toggle('rtl-mode', currentLang === 'fa');
 
-        // Re-display the IP line with the new language for labels
-        if (ipData.publicIP) {
-            // UPDATED to use all cached data
-            displayPublicIP(ipData.publicIP, ipData.countryName, ipData.countryCode);
-        }
+            // Update i18n marked elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (lang[key]) {
+                    if (key === 'creatorText') {
+                        el.innerHTML = lang[key];
+                    } else {
+                        el.textContent = lang[key];
+                    }
+                }
+            });
 
-    } else if (ipInitialStateDiv) {
-        // Update the toggle button in the initial state
-        const toggleButton = ipInitialStateDiv.querySelector('#languageToggle');
-        if (toggleButton) {
-            toggleButton.textContent = lang.toggleBtn;
-        }
-    }
+            // Handle the language toggle button which is re-created
+            const ipContentDiv = document.getElementById('ipContent');
+            const ipInitialStateDiv = document.getElementById('ipInitialState');
 
+            if (ipContentDiv && ipContentDiv.style.display !== 'none') {
+                const toggleButton = ipContentDiv.querySelector('#languageToggle');
+                if (toggleButton) {
+                    toggleButton.textContent = lang.toggleBtn;
+                }
 
-    // Update data-label for responsive tables (headers)
-    document.querySelectorAll('#dnsTable thead th').forEach(th => {
-        const key = th.getAttribute('data-i18n');
-        const correspondingFaKey = langData.fa[key];
-        const correspondingEnKey = langData.en[key];
+                if (ipData.publicIP) {
+                    displayPublicIP(ipData.publicIP, ipData.countryName, ipData.countryCode);
+                }
 
-        document.querySelectorAll(`#dnsTable tbody td`).forEach(td => {
-            if (td.getAttribute('data-label') === correspondingFaKey || td.getAttribute('data-label') === correspondingEnKey) {
-                 td.setAttribute('data-label', lang[key]);
+            } else if (ipInitialStateDiv) {
+                const toggleButton = ipInitialStateDiv.querySelector('#languageToggle');
+                if (toggleButton) {
+                    toggleButton.textContent = lang.toggleBtn;
+                }
             }
-        });
-    });
-}
-
-/**
- * Toggles the application language between English and Persian.
- */
-window.switchLanguage = function() {
-    currentLang = (currentLang === 'en' ? 'fa' : 'en');
-    updateDOMText();
-}
 
 
-// --- Advanced Speed Test Settings ---
-const TEST_COUNT = 5; 
-// INCREASED MAX_TIMEOUT to 6000ms for stability
-const MAX_TIMEOUT = 6000; 
-const DOWNLOAD_SIZE_BYTES = 10485760; // 10MB (10 * 1024 * 1024)
+            // Update data-label for responsive tables (headers)
+            document.querySelectorAll('#dnsTable thead th').forEach(th => {
+                const key = th.getAttribute('data-i18n');
+                const correspondingFaKey = langData.fa[key];
+                const correspondingEnKey = langData.en[key];
 
-const DOWNLOAD_URLS = [
-    'https://speed.cloudflare.com/__down?bytes=' + DOWNLOAD_SIZE_BYTES,
-    'https://ipv4.download.thinkbroadband.com/10MB.zip' 
-];
+                document.querySelectorAll(`#dnsTable tbody td`).forEach(td => {
+                    // Check if the current data-label matches the key from either language
+                    if (td.getAttribute('data-label') === correspondingFaKey || td.getAttribute('data-label') === correspondingEnKey) {
+                         td.setAttribute('data-label', lang[key]);
+                    }
+                });
+            });
+        }
 
-// DNS Servers to test 
-const dnsServers = [
-  {name:"Shecan", urls:["https://shecan.ir/favicon.ico"], domain:"shecan.ir"},
-  {name:"Level 3", urls:["https://www.level3.com/favicon.ico"], domain:"level3.com"},
-  {name:"Google", urls:["https://www.google.com/images/cleardot.gif"], domain:"google.com"},
-  {name:"Cloudflare", urls:["https://cloudflare.com/cdn-cgi/images/icon-logo.svg"], domain:"cloudflare.com"},
-  {name:"Quad9", urls:["https://www.quad9.net/favicon.com"], domain:"quad9.net"},
-];
+        /**
+         * Toggles the application language between English and Persian.
+         */
+        window.switchLanguage = function() {
+            currentLang = (currentLang === 'en' ? 'fa' : 'en');
+            updateDOMText();
+        }
 
-function getColor(speed){
-  if(speed<100) return "var(--color-secondary)"; 
-  if(speed<200) return "var(--color-primary)"; 
-  if(speed<400) return "var(--color-accent)"; 
-  return "#f87171"; 
-}
 
-function getSpeedColor(speedMbps){
-    if (speedMbps >= 20) return "var(--color-secondary)"; 
-    if (speedMbps >= 5) return "var(--color-accent)"; 
-    return "#f87171"; 
-}
+        // --- Advanced Speed Test Settings ---
+        const TEST_COUNT = 5; 
+        const MAX_TIMEOUT = 6000; 
+        const DOWNLOAD_SIZE_BYTES = 10485760; // 10MB (10 * 1024 * 1024)
 
-/**
- * Executes a fetch request with a defined timeout.
- */
-function fetchWithTimeout(url, timeout=MAX_TIMEOUT){
-  return new Promise(resolve=>{
-    const start = performance.now();
-    const urlWithCacheBuster = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(); 
-    const controller = new AbortController();
-    const signal = controller.signal;
+        const DOWNLOAD_URLS = [
+            'https://speed.cloudflare.com/__down?bytes=' + DOWNLOAD_SIZE_BYTES,
+            'https://ipv4.download.thinkbroadband.com/10MB.zip' 
+        ];
 
-    const timer = setTimeout(()=>{
-        controller.abort(); 
-        resolve(timeout);
-    }, timeout);
+        // DNS Servers to test 
+        // IPs are grouped for combined display
+        const dnsServers = [
+          {name:"Shecan", urls:["https://shecan.ir/favicon.ico", "https://shecan.ir/logo.svg"], domain:"shecan.ir", ips:["178.22.122.100", "178.22.122.101"]}, 
+          {name:"Google", urls:["https://www.google.com/images/cleardot.gif"], domain:"google.com", ips:["8.8.8.8", "8.8.4.4"]},
+          {name:"Cloudflare", urls:["https://cloudflare.com/cdn-cgi/images/icon-logo.svg"], domain:"cloudflare.com", ips:["1.1.1.1", "1.0.0.1"]},
+          {name:"Quad9", urls:["https://www.quad9.net/favicon.com"], domain:"quad9.net", ips:["9.9.9.9"]},
+          {name:"Level 3", urls:["https://www.level3.com/favicon.ico"], domain:"level3.com", ips:["209.244.0.3"]},
+        ];
 
-    fetch(urlWithCacheBuster, {
-        mode:'no-cors', 
-        cache:'no-store', 
-        signal: signal 
-    })
-      .then(()=>{ 
-          clearTimeout(timer); 
-          resolve(performance.now()-start); 
-      })
-      .catch(error=>{ 
-          clearTimeout(timer); 
-          if(error.name === 'AbortError') {
-              resolve(timeout); 
-          } else {
-              console.warn(`Fetch error for ${url}:`, error.message);
-              resolve(timeout);
+        function getColor(speed){
+          if(speed<100) return "var(--color-secondary)"; 
+          if(speed<200) return "var(--color-primary)"; 
+          if(speed<400) return "var(--color-accent)"; 
+          return "#f87171"; 
+        }
+
+        function getSpeedColor(speedMbps){
+            if (speedMbps >= 20) return "var(--color-secondary)"; 
+            if (speedMbps >= 5) return "var(--color-accent)"; 
+            return "#f87171"; 
+        }
+
+        /**
+         * Executes a fetch request with a defined timeout.
+         */
+        function fetchWithTimeout(url, timeout=MAX_TIMEOUT){
+          return new Promise(resolve=>{
+            const start = performance.now();
+            const urlWithCacheBuster = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(); 
+            const controller = new AbortController();
+            const signal = controller.signal;
+
+            const timer = setTimeout(()=>{
+                controller.abort(); 
+                resolve(timeout);
+            }, timeout);
+
+            fetch(urlWithCacheBuster, {
+                mode:'no-cors', 
+                cache:'no-store', 
+                signal: signal 
+            })
+              .then(()=>{ 
+                  clearTimeout(timer); 
+                  resolve(performance.now()-start); 
+              })
+              .catch(error=>{ 
+                  clearTimeout(timer); 
+                  if(error.name === 'AbortError') {
+                      resolve(timeout); 
+                  } else {
+                      console.warn(`Fetch error for ${url}:`, error.message);
+                      resolve(timeout);
+                  }
+              });
+          });
+        }
+
+        /**
+         * Tests a DNS provider by iterating through all its associated URLs.
+         */
+        async function testDNSProvider(urls, statusElement){
+          const lang = langData[currentLang];
+          const results = [];
+
+          for(let i=0;i<TEST_COUNT;i++){
+            statusElement.textContent = `${lang.testDnsStatus} (${i + 1}/${TEST_COUNT})...`; 
+
+            try {
+                // Test ALL URLs (Shecan has two) to get the best result from the group
+                const times = await Promise.all(urls.map(url=>fetchWithTimeout(url, MAX_TIMEOUT)));
+                const fastest = Math.min(...times);
+                if(fastest < MAX_TIMEOUT) results.push(fastest);
+            } catch (e) {
+                console.warn(`Fetch attempt failed in round ${i+1}. Treating as timeout.`);
+            }
+
+            await new Promise(r=>setTimeout(r,50)); 
           }
-      });
-  });
-}
 
-/**
- * Tests a DNS provider.
- */
-async function testDNSProvider(urls, statusElement){
-  const lang = langData[currentLang];
-  const results = [];
-  for(let i=0;i<TEST_COUNT;i++){
-    statusElement.textContent = `${lang.testDnsStatus} (${i + 1}/${TEST_COUNT})...`; 
+          // Return the average time of successful attempts, or MAX_TIMEOUT if none succeeded
+          return results.length ? results.reduce((a,b)=>a+b,0)/results.length : MAX_TIMEOUT;
+        }
 
-    try {
-        const times = await Promise.all(urls.map(url=>fetchWithTimeout(url, MAX_TIMEOUT)));
-        const fastest = Math.min(...times);
-        if(fastest < MAX_TIMEOUT) results.push(fastest);
-    } catch (e) {
-        console.warn(`Fetch attempt failed in round ${i+1}. Treating as timeout.`);
-    }
 
-    await new Promise(r=>setTimeout(r,50)); 
-  }
+        /**
+         * Copies text (IP or IPs) to clipboard.
+         */
+        window.copyToClipboard = function(text){
+            const lang = langData[currentLang];
+            // Check if the text looks like an IP or a list of IPs
+            const isIpLike = text.split(',').every(ip => ip.trim().match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/));
+            
+            const message = isIpLike
+                ? `IP(s): ${text} ${lang.copyAlert1}` 
+                : `${lang.copyAlert1}`;
 
-  return results.length ? results.reduce((a,b)=>a+b,0)/results.length : MAX_TIMEOUT;
-}
+          navigator.clipboard.writeText(text).then(()=>{
+            alert(message);
+            console.log(`Copied: ${text}`);
+          }).catch(err => {
+            console.error('Could not copy text: ', err);
+            alert(`${lang.copyAlert2}`);
+          });
+        }
 
-/**
- * Copies IP to clipboard.
- */
-window.copyToClipboard = function(text){
-    const lang = langData[currentLang];
-  navigator.clipboard.writeText(text).then(()=>{
-    alert(`IP: ${text} ${lang.copyAlert1}`);
-    console.log(`Copied: ${text}`);
-  }).catch(err => {
-    console.error('Could not copy text: ', err);
-    alert(`${lang.copyAlert2}`);
-  });
-}
+        /**
+         * Displays the fetched IP and Geo-location data.
+         */
+        function displayPublicIP(publicIP, countryName, countryCode) {
+            const lang = langData[currentLang];
+            const ipContentElement = document.getElementById("ipContent");
 
-/**
- * Displays the fetched IP and Geo-location data.
- */
-// UPDATED function signature to include countryName
-function displayPublicIP(publicIP, countryName, countryCode) {
-    const lang = langData[currentLang];
-    const ipContentElement = document.getElementById("ipContent");
-    
-    let flagHtml = '';
-    let countryDisplay = countryName || lang.unknownCountry; // Use country name or 'Unknown'
+            let flagHtml = '';
+            let countryDisplay = countryName || lang.unknownCountry; 
 
-    if (countryCode && countryCode.length === 2) {
-        let flagUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
-        let flagAlt = `${countryDisplay} Flag`;
-        flagHtml = `<img src="${flagUrl}" class="flag-icon" alt="${flagAlt}" title="${countryDisplay}">`;
-    }
+            if (countryCode && countryCode.length === 2) {
+                let flagUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+                let flagAlt = `${countryDisplay} Flag`;
+                flagHtml = `<img src="${flagUrl}" class="flag-icon" alt="${flagAlt}" title="${countryDisplay}">`;
+            }
 
-    // Insert the IP and copy button into the ipContent div
-    ipContentElement.innerHTML = `
-        <div class="ip-info-line">
-            ${lang.publicIpLabel} <span>${publicIP}</span> 
-            <button class="copy-btn" onclick="copyToClipboard('${publicIP}')">${lang.copyIpBtn}</button>
-        </div>
-        <div class="ip-info-line">
-            ${flagHtml} 
-            ${lang.countryLabel} <span>${countryDisplay}</span>
-        </div>
-        <button id="languageToggle" onclick="switchLanguage()">${lang.toggleBtn}</button>
-    `;
-    
-    // Show the IP content and hide the initial state
-    document.getElementById("ipInitialState").style.display = 'none';
-    ipContentElement.style.display = 'flex';
-    
-    // Ensure the new toggle button gets the correct language setting
-    updateDOMText();
-}
+            // Insert the IP and copy button into the ipContent div
+            ipContentElement.innerHTML = `
+                <div class="ip-info-line">
+                    ${lang.publicIpLabel} <span>${publicIP}</span> 
+                    <button class="copy-btn" onclick="copyToClipboard('${publicIP}')">${lang.copyIpBtn}</button>
+                </div>
+                <div class="ip-info-line">
+                    ${flagHtml} 
+                    ${lang.countryLabel} <span>${countryDisplay}</span>
+                </div>
+                <button id="languageToggle" onclick="switchLanguage()">${lang.toggleBtn}</button>
+            `;
 
-/**
- * Fetches Public IP and Geo-location data upon user click.
- */
-window.revealPublicIP = async function() {
-    const lang = langData[currentLang];
-    const btn = document.getElementById('revealIpBtn');
-    const initialStateDiv = document.getElementById("ipInitialState");
-    const ipStatusSpan = initialStateDiv.querySelector('[data-i18n="ipClickToReveal"]');
+            // Show the IP content and hide the initial state
+            document.getElementById("ipInitialState").style.display = 'none';
+            ipContentElement.style.display = 'flex';
 
-    if (ipData.publicIP) {
-        // Data is already fetched (on first run), just display it.
-        displayPublicIP(ipData.publicIP, ipData.countryName, ipData.countryCode);
-        return;
-    }
+            // Ensure the new toggle button gets the correct language setting
+            updateDOMText();
+        }
 
-    btn.disabled = true;
-    ipStatusSpan.textContent = lang.ipFetching; // Show loading status
+        /**
+         * Fetches Public IP and Geo-location data upon user click.
+         */
+        window.revealPublicIP = async function() {
+            const lang = langData[currentLang];
+            const btn = document.getElementById('revealIpBtn');
+            const initialStateDiv = document.getElementById("ipInitialState");
+            const ipStatusSpan = initialStateDiv.querySelector('[data-i18n="ipClickToReveal"]');
 
-    let publicIP = null;
-    let countryCode = null;
-    let countryName = null;
+            if (ipData.publicIP) {
+                displayPublicIP(ipData.publicIP, ipData.countryName, ipData.countryCode);
+                return;
+            }
 
-    try {
-        // 1. Get Public IP
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        if (!ipResponse.ok) throw new Error('IP service 1 response was not ok');
-        publicIP = (await ipResponse.json()).ip;
+            btn.disabled = true;
+            ipStatusSpan.textContent = lang.ipFetching; 
 
-        // 2. Get Country Code and Name
-        const geoResponse = await fetch(`https://ip-api.com/json/${publicIP}?fields=countryCode,country,status`);
-        if (geoResponse.ok) {
-            const geoData = await geoResponse.json();
-            if (geoData.status === 'success') {
-                countryCode = geoData.countryCode; 
-                countryName = geoData.country; // Fetching country name
+            let publicIP = null;
+            let countryCode = null;
+            let countryName = null;
+
+            try {
+                // 1. Get Public IP
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                if (!ipResponse.ok) throw new Error('IP service 1 response was not ok');
+                publicIP = (await ipResponse.json()).ip;
+
+                // 2. Get Country Code and Name
+                const geoResponse = await fetch(`https://ip-api.com/json/${publicIP}?fields=countryCode,country,status`);
+                if (geoResponse.ok) {
+                    const geoData = await geoResponse.json();
+                    if (geoData.status === 'success') {
+                        countryCode = geoData.countryCode; 
+                        countryName = geoData.country; 
+                    }
+                }
+            } catch (error) {
+                console.error("IP or Geo fetch failed:", error);
+                ipStatusSpan.textContent = `Error: ${lang.generalError}`;
+                btn.disabled = false;
+                return;
+            }
+
+            // Cache and Display Result
+            ipData.publicIP = publicIP;
+            ipData.countryCode = countryCode;
+            ipData.countryName = countryName; 
+            displayPublicIP(publicIP, countryName, countryCode); 
+            btn.disabled = false;
+        }
+
+
+        // --- Download Test Function (Code unchanged as logic is robust) ---
+        async function downloadSpeedTest(){
+            const lang = langData[currentLang];
+            const barElement = document.getElementById("speedBar");
+            const statusElement = document.getElementById("speedStatus");
+            const url = DOWNLOAD_URLS[Math.floor(Math.random() * DOWNLOAD_URLS.length)];
+
+            barElement.style.width = '0%';
+            barElement.style.background = 'linear-gradient(90deg, var(--color-primary), var(--color-secondary), var(--color-primary))'; 
+            barElement.style.animation = 'loadingEffect 1.5s linear infinite';
+
+            const startOverall = performance.now();
+            let receivedLength = 0; 
+            const totalLength = DOWNLOAD_SIZE_BYTES; 
+
+            statusElement.innerHTML = `0% ${lang.downloadStatus1} ${url.split('/')[2]}...`;
+
+            try {
+                const response = await fetch(url); 
+
+                if (!response.ok || !response.body) {
+                     throw new Error(`HTTP error! Status: ${response.status || 'N/A'}`);
+                }
+
+                const reader = response.body.getReader();
+
+                while(true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    receivedLength += value.length;
+                    const currentTime = performance.now();
+                    const timeElapsed = currentTime - startOverall;
+
+                    const speedMbps = ((receivedLength * 8) / (timeElapsed / 1000)) / 1000000;
+
+                    const percentage = Math.min(100, Math.round((receivedLength / totalLength) * 100));
+
+                    barElement.style.width = `${percentage}%`;
+                    statusElement.innerHTML = `${percentage}% | ${lang.downloadStatus2} ${speedMbps.toFixed(2)} Mbps`;
+                }
+
+                const endOverall = performance.now();
+                const downloadTime = endOverall - startOverall; 
+
+                if (downloadTime === 0 || receivedLength === 0) {
+                    throw new Error('Zero time or zero bytes received after successful fetch.');
+                }
+
+                const speedMbps = ((receivedLength * 8) / (downloadTime / 1000)) / 1000000;
+
+                barElement.style.animation = 'none';
+
+                return speedMbps;
+
+            } catch (error) {
+                console.error("Download test failed:", error);
+                statusElement.innerHTML = `${lang.downloadError} (${error.message})`;
+                barElement.style.width = '100%';
+                barElement.style.animation = 'none';
+                barElement.style.background = '#f87171';
+                return null;
             }
         }
-    } catch (error) {
-        console.error("IP or Geo fetch failed:", error);
-        ipStatusSpan.textContent = `Error: ${lang.generalError}`;
-        btn.disabled = false;
-        return;
-    }
 
-    // Cache and Display Result
-    ipData.publicIP = publicIP;
-    ipData.countryCode = countryCode;
-    ipData.countryName = countryName; // Cache country name
-    displayPublicIP(publicIP, countryName, countryCode); // Pass countryName
-    btn.disabled = false;
-}
+        // --- Main Global Speed Test Execution Function (No Changes) ---
+        async function runGlobalSpeedTest(){
+            const lang = langData[currentLang];
+            const btn = document.getElementById("speedTestBtn");
+            const buttonText = document.getElementById("buttonText");
+            const buttonLoader = document.getElementById("buttonLoader");
+            const downloadDisplay = document.getElementById("downloadSpeedDisplay");
+            const statusElement = document.getElementById("speedStatus");
+            const speedBar = document.getElementById("speedBar");
 
+            let downloadSpeed = null;
 
-// --- Download Test Function (Code unchanged as logic is robust) ---
-async function downloadSpeedTest(){
-    const lang = langData[currentLang];
-    const barElement = document.getElementById("speedBar");
-    const statusElement = document.getElementById("speedStatus");
-    const url = DOWNLOAD_URLS[Math.floor(Math.random() * DOWNLOAD_URLS.length)];
+            btn.disabled = true;
+            buttonText.textContent = lang.buttonTesting;
+            buttonLoader.style.display = 'block'; 
 
-    barElement.style.width = '0%';
-    barElement.style.background = 'linear-gradient(90deg, var(--color-primary), var(--color-secondary), var(--color-primary))'; 
-    barElement.style.animation = 'loadingEffect 1.5s linear infinite';
+            downloadDisplay.textContent = '--';
+            downloadDisplay.style.color = 'var(--color-primary)';
+            speedBar.style.width = '0%';
+            speedBar.style.background = 'none'; 
+            speedBar.style.animation = 'none'; 
+            statusElement.innerHTML = lang.speedStatusStart;
 
-    const startOverall = performance.now();
-    let receivedLength = 0; 
-    const totalLength = DOWNLOAD_SIZE_BYTES; 
+            downloadSpeed = await downloadSpeedTest();
 
-    statusElement.innerHTML = `0% ${lang.downloadStatus1} ${url.split('/')[2]}...`;
+            if (downloadSpeed !== null) {
+                const color = getSpeedColor(downloadSpeed);
+                downloadDisplay.textContent = downloadSpeed.toFixed(2);
+                downloadDisplay.style.color = color;
+                statusElement.innerHTML = `${lang.downloadResult1} ${downloadSpeed.toFixed(2)} Mbps. ${lang.downloadResult2}`;
+            } else {
+                downloadDisplay.textContent = lang.downloadFail;
+                downloadDisplay.style.color = '#f87171';
+            }
 
-    try {
-        const response = await fetch(url); 
-
-        if (!response.ok || !response.body) {
-             throw new Error(`HTTP error! Status: ${response.status || 'N/A'}`);
+            btn.disabled = false;
+            buttonText.textContent = lang.rerunSpeedBtn;
+            buttonLoader.style.display = 'none';
         }
 
-        const reader = response.body.getReader();
+        // --- Main DNS Test Execution Function (FIXED) ---
+        document.getElementById("startBtn").onclick = async function(){
+          const lang = langData[currentLang];
+          const btn = this;
+          const tbody = document.querySelector('#dnsTable tbody');
+          const bestDiv = document.getElementById("bestDNS");
 
-        while(true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+          btn.disabled = true;
+          bestDiv.textContent = '';
+          // The colspan is 6 (Priority, Name, IP, Domain, Status, Speed)
+          tbody.innerHTML = `<tr><td colspan="6"><div class="loader"></div>${lang.loaderDns}</td></tr>`; 
 
-            receivedLength += value.length;
-            const currentTime = performance.now();
-            const timeElapsed = currentTime - startOverall;
+          await new Promise(r => setTimeout(r, 10)); 
 
-            // Using receivedLength * 8 bits / (timeElapsed / 1000 seconds) to get bps, then divide by 1M for Mbps
-            const speedMbps = ((receivedLength * 8) / (timeElapsed / 1000)) / 1000000;
+          tbody.innerHTML = '';
+          const headers = document.querySelectorAll('#dnsTable thead th');
 
-            const percentage = Math.min(100, Math.round((receivedLength / totalLength) * 100));
+          let rows = dnsServers.map(dns=>{
+            const tr = document.createElement('tr');
+            // Getting header texts for mobile data-label
+            const headerLabels = Array.from(headers).map(th => langData[currentLang][th.getAttribute('data-i18n')]);
 
-            barElement.style.width = `${percentage}%`;
-            statusElement.innerHTML = `${percentage}% | ${lang.downloadStatus2} ${speedMbps.toFixed(2)} Mbps`;
-        }
+            // Format IPs for display (e.g., "8.8.8.8, 8.8.4.4") and for copying
+            const ipString = dns.ips.join(', ');
+            const ipDisplayHtml = dns.ips.map(ip => `<span class="single-ip">${ip}</span>`).join('');
 
-        const endOverall = performance.now();
-        const downloadTime = endOverall - startOverall; 
+            tr.innerHTML = `
+              <td data-label="${headerLabels[0]}">-</td>
+              <td data-label="${headerLabels[1]}">${dns.name}</td>
+              <td data-label="${headerLabels[2]}">
+                <div class="dns-ip-cell-content">
+                    <div class="dns-ips">${ipDisplayHtml}</div>
+                    <button class="copy-btn" onclick="copyToClipboard('${ipString}')">${lang.copyDnsBtn}</button>
+                </div>
+              </td> 
+              <td data-label="${headerLabels[3]}">${dns.domain}</td>
+              <td data-label="${headerLabels[4]}"><span>${lang.testDnsStatus} (0/${TEST_COUNT})...</span></td>
+              <td data-label="${headerLabels[5]}">
+                <div class="speed-bar-container"><div class="speed-bar"></div></div>
+                <span class="speed-text">0 ms</span>
+              </td>
+            `;
+            tbody.appendChild(tr);
+            return {
+                dns,
+                tr,
+                time: MAX_TIMEOUT, 
+                // FIXED: Re-checked the selector logic for children. 
+                bar:tr.querySelector('.speed-bar'),
+                status:tr.children[4].querySelector('span'),
+                priorityCell:tr.children[0], 
+                speedText:tr.querySelector('.speed-text')
+            };
+          });
 
-        if (downloadTime === 0 || receivedLength === 0) {
-            // This is the core reason for potential 'FAIL'. If the browser loads everything too quickly 
-            // (e.g., small file or very fast connection) or fails to report bytes correctly, 
-            // the calculation breaks. The current structure is as robust as possible for a JS download test.
-            throw new Error('Zero time or zero bytes received after successful fetch.');
-        }
+          // Start all test promises
+          const testPromises = rows.map(async row=>{
+            // Now calling the fixed testDNSProvider which uses all URLs
+            row.time = await testDNSProvider(row.dns.urls, row.status); 
+            return row;
+          });
 
-        const speedMbps = ((receivedLength * 8) / (downloadTime / 1000)) / 1000000;
+          Promise.all(testPromises).then(finalRows => {
 
-        barElement.style.animation = 'none';
+              finalRows.forEach(row => {
+                  const displayTime = Math.round(row.time);
 
-        return speedMbps;
+                  const referenceTime = 200; 
+                  const barWidth = Math.min(100, (referenceTime / displayTime) * 100); 
 
-    } catch (error) {
-        console.error("Download test failed:", error);
-        statusElement.innerHTML = `${lang.downloadError} (${error.message})`;
-        barElement.style.width = '100%';
-        barElement.style.animation = 'none';
-        barElement.style.background = '#f87171';
-        return null;
-    }
-}
+                  row.bar.style.width=`${barWidth}%`;
+                  row.bar.style.background=getColor(displayTime);
 
-// --- Main Global Speed Test Execution Function (No Changes) ---
-async function runGlobalSpeedTest(){
-    const lang = langData[currentLang];
-    const btn = document.getElementById("speedTestBtn");
-    const buttonText = document.getElementById("buttonText");
-    const buttonLoader = document.getElementById("buttonLoader");
-    const downloadDisplay = document.getElementById("downloadSpeedDisplay");
-    const statusElement = document.getElementById("speedStatus");
-    const speedBar = document.getElementById("speedBar");
+                  row.status.textContent = displayTime>=MAX_TIMEOUT?`❌ ${lang.dnsFail}`:`✔️ ${lang.dnsSuccess}`;
+                  row.speedText.textContent = displayTime>=MAX_TIMEOUT?`>${MAX_TIMEOUT} ms ${lang.dnsFailedText}`:`${displayTime} ms ${lang.dnsAvg} ${TEST_COUNT})`;
+              });
 
-    let downloadSpeed = null;
+              finalRows.sort((a,b)=>a.time-b.time);
 
-    btn.disabled = true;
-    buttonText.textContent = lang.buttonTesting;
-    buttonLoader.style.display = 'block'; 
+              tbody.innerHTML=''; 
+              finalRows.forEach((r,index)=>{ 
+                  r.priorityCell.textContent=index+1; 
+                  tbody.appendChild(r.tr); 
+              });
 
-    downloadDisplay.textContent = '--';
-    downloadDisplay.style.color = 'var(--color-primary)';
-    speedBar.style.width = '0%';
-    speedBar.style.background = 'none'; 
-    speedBar.style.animation = 'none'; 
-    statusElement.innerHTML = lang.speedStatusStart;
+              const fastestRow = finalRows.find(r=>r.time<MAX_TIMEOUT);
+              if(fastestRow){ 
+                  fastestRow.tr.classList.add('fastest'); 
+                  bestDiv.textContent=`${lang.fastestDns} ${fastestRow.dns.name} (${Math.round(fastestRow.time)} ms)`;
+              } else {
+                  bestDiv.textContent=lang.allDnsFail;
+              }
 
-    downloadSpeed = await downloadSpeedTest();
+              btn.disabled=false;
+          }).catch(error => {
+              console.error("An error occurred during DNS testing:", error);
+              bestDiv.textContent=lang.generalError;
+              btn.disabled=false;
+          });
+        };
 
-    if (downloadSpeed !== null) {
-        const color = getSpeedColor(downloadSpeed);
-        downloadDisplay.textContent = downloadSpeed.toFixed(2);
-        downloadDisplay.style.color = color;
-        statusElement.innerHTML = `${lang.downloadResult1} ${downloadSpeed.toFixed(2)} Mbps. ${lang.downloadResult2}`;
-    } else {
-        downloadDisplay.textContent = lang.downloadFail;
-        downloadDisplay.style.color = '#f87171';
-    }
-
-    btn.disabled = false;
-    buttonText.textContent = lang.rerunSpeedBtn;
-    buttonLoader.style.display = 'none';
-}
-
-// --- Main DNS Test Execution Function (No Changes) ---
-document.getElementById("startBtn").onclick = async function(){
-  const lang = langData[currentLang];
-  const btn = this;
-  const tbody = document.querySelector('#dnsTable tbody');
-  const bestDiv = document.getElementById("bestDNS");
-
-  btn.disabled = true;
-  bestDiv.textContent = '';
-  tbody.innerHTML = `<tr><td colspan="5"><div class="loader"></div>${lang.loaderDns}</td></tr>`; 
-
-  await new Promise(r => setTimeout(r, 10)); 
-
-  tbody.innerHTML = '';
-  const headers = document.querySelectorAll('#dnsTable thead th');
-  let rows = dnsServers.map(dns=>{
-    const tr = document.createElement('tr');
-    // Ensure all data-label attributes are updated with the correct language key
-    const headerLabels = Array.from(headers).map(th => langData[currentLang][th.getAttribute('data-i18n')]);
-
-    tr.innerHTML = `
-      <td data-label="${headerLabels[0]}">-</td>
-      <td data-label="${headerLabels[1]}">${dns.name}</td>
-      <td data-label="${headerLabels[2]}">${dns.domain}</td>
-      <td data-label="${headerLabels[3]}"><span>${lang.testDnsStatus} (0/${TEST_COUNT})...</span></td>
-      <td data-label="${headerLabels[4]}">
-        <div class="speed-bar-container"><div class="speed-bar"></div></div>
-        <span class="speed-text">0 ms</span>
-      </td>
-    `;
-    tbody.appendChild(tr);
-    return {
-        dns,
-        tr,
-        time: MAX_TIMEOUT, 
-        bar:tr.querySelector('.speed-bar'),
-        status:tr.querySelector(`td[data-label="${headerLabels[3]}"] span`), 
-        priorityCell:tr.children[0], 
-        speedText:tr.querySelector('.speed-text')
-    };
-  });
-
-  const testPromises = rows.map(async row=>{
-    // UPDATED: Using the new MAX_TIMEOUT of 6000ms
-    row.time = await testDNSProvider(row.dns.urls, row.status); 
-    return row;
-  });
-
-  Promise.all(testPromises).then(finalRows => {
-
-      finalRows.forEach(row => {
-          const displayTime = Math.round(row.time);
-
-          const referenceTime = 200; 
-          const barWidth = Math.min(100, (referenceTime / displayTime) * 100); 
-
-          row.bar.style.width=`${barWidth}%`;
-          row.bar.style.background=getColor(displayTime);
-
-          row.status.textContent = displayTime>=MAX_TIMEOUT?`❌ ${lang.dnsFail}`:`✔️ ${lang.dnsSuccess}`;
-          row.speedText.textContent = displayTime>=MAX_TIMEOUT?`>${MAX_TIMEOUT} ms ${lang.dnsFailedText}`:`${displayTime} ms ${lang.dnsAvg} ${TEST_COUNT})`;
-      });
-
-      finalRows.sort((a,b)=>a.time-b.time);
-
-      tbody.innerHTML=''; 
-      finalRows.forEach((r,index)=>{ 
-          r.priorityCell.textContent=index+1; 
-          tbody.appendChild(r.tr); 
-      });
-
-      const fastestRow = finalRows.find(r=>r.time<MAX_TIMEOUT);
-      if(fastestRow){ 
-          fastestRow.tr.classList.add('fastest'); 
-          bestDiv.textContent=`${lang.fastestDns} ${fastestRow.dns.name} (${Math.round(fastestRow.time)} ms)`;
-      } else {
-          bestDiv.textContent=lang.allDnsFail;
-      }
-
-      btn.disabled=false;
-  }).catch(error => {
-      console.error("An error occurred during DNS testing:", error);
-      bestDiv.textContent=lang.generalError;
-      btn.disabled=false;
-  });
-};
-
-// --- Execute code on page load ---
-document.addEventListener('DOMContentLoaded', () => {
-    // Initial call to update DOM with correct language texts for the initial state
-    updateDOMText();
-    document.getElementById("speedTestBtn").onclick = runGlobalSpeedTest;
-});
-</script>
+        // --- Execute code on page load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial call to update DOM with correct language texts for the initial state
+            updateDOMText();
+            document.getElementById("speedTestBtn").onclick = runGlobalSpeedTest;
+        });
+    </script>
 </body>
 </html>
+
 
  
